@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Outer Rim -->
+  <circle cx="100" cy="100" r="96" fill="#002147" stroke="#D97706" stroke-width="4"/>
+  <circle cx="100" cy="100" r="88" fill="none" stroke="#FFFFFF" stroke-dasharray="3,3" stroke-width="2"/>
+  
+  <!-- Inner Rim -->
+  <circle cx="100" cy="100" r="74" fill="#0A2540" stroke="#D97706" stroke-width="2"/>
+  
+  <!-- Center Emblem: Scale of Justice / Metrology Balance -->
+  <!-- Beam -->
+  <rect x="50" y="75" width="100" height="6" rx="3" fill="#E2E8F0"/>
+  <!-- Central Pillar -->
+  <rect x="97" y="55" width="6" height="75" fill="#E2E8F0"/>
+  <polygon points="100,45 106,55 94,55" fill="#D97706"/>
+  <!-- Base -->
+  <path d="M75,135 Q100,128 125,135 L130,145 L70,145 Z" fill="#E2E8F0"/>
+  
+  <!-- Left Pan -->
+  <line x1="56" y1="81" x2="44" y2="105" stroke="#CBD5E1" stroke-width="1.5"/>
+  <line x1="56" y1="81" x2="68" y2="105" stroke="#CBD5E1" stroke-width="1.5"/>
+  <path d="M40,105 Q56,118 72,105 Z" fill="#D97706"/>
+  
+  <!-- Right Pan -->
+  <line x1="144" y1="81" x2="132" y2="105" stroke="#CBD5E1" stroke-width="1.5"/>
+  <line x1="144" y1="81" x2="156" y2="105" stroke="#CBD5E1" stroke-width="1.5"/>
+  <path d="M128,105 Q144,118 160,105 Z" fill="#D97706"/>
+  
+  <!-- Tricolor Accent Dot -->
+  <circle cx="100" cy="78" r="4" fill="#15803D"/>
+  <circle cx="100" cy="78" r="2" fill="#FFFFFF"/>
+  
+  <!-- Curved Text Placeholder (Department of Legal Metrology) -->
+  <text x="100" y="32" fill="#FFFFFF" font-size="8.5" font-family="sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="1">LEGAL METROLOGY</text>
+  <text x="100" y="165" fill="#D97706" font-size="7" font-family="sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="1">GOVERNMENT OF INDIA</text>
+  <text x="100" y="176" fill="#94A3B8" font-size="5" font-family="sans-serif" text-anchor="middle">OFFICIAL VERIFICATION SYSTEM</text>
+</svg>

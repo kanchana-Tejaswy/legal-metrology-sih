@@ -1,0 +1,13 @@
+node_modules
+backend/node_modules
+frontend/node_modules
+*.log
+.env
+.env.local
+test_write.txt
+run_all.bat
+run_all.ps1
+run_backend.bat
+run_frontend.bat
+database/*.sql
+IMPLEMENTATION_PLAN.md

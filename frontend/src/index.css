@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gov-navy: #002147;
+    --gov-blue: #1b365d;
+    --gov-ashoka: #0b4f6c;
+    --gov-saffron: #d97706;
+    --gov-green: #15803d;
+    --gov-border: #cbd5e1;
+    --gov-bg: #f8fafc;
+  }
+
+  body {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+}
+
+/* Accessibility Font Scalers */
+html.font-scale-sm {
+  font-size: 14px;
+}
+html.font-scale-md {
+  font-size: 16px;
+}
+html.font-scale-lg {
+  font-size: 18px;
+}
+
+/* Government Indian Tricolor Accent Strip */
+.gov-tricolor-strip {
+  height: 4px;
+  background: linear-gradient(
+    to right,
+    #ff9933 0%,
+    #ff9933 33.33%,
+    #ffffff 33.33%,
+    #ffffff 66.66%,
+    #138808 66.66%,
+    #138808 100%
+  );
+}
+
+/* Official Government Certificate Styling */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-certificate, #printable-certificate * {
+    visibility: visible;
+  }
+  #printable-certificate {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    border: 3px double #002147;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+.official-stamp {
+  border: 2px dashed #002147;
+  border-radius: 4px;
+  background-color: #f0fdf4;
+}
+
+/* Structured government table styles */
+.gov-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gov-table th {
+  background-color: #002147;
+  color: #ffffff;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #cbd5e1;
+  text-align: left;
+}
+
+.gov-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+}
+
+.gov-table tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.gov-table tr:hover {
+  background-color: #f1f5f9;
+}
