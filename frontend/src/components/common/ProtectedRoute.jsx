@@ -14,8 +14,8 @@ export const ProtectedRoute = ({ children, allowedRoles = [] }) => {
     );
   }
 
-  // Not logged in
-  if (!user) {
+  // Not logged in or missing token
+  if (!user || !token) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 

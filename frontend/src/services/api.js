@@ -45,6 +45,10 @@ export const api = {
   getProfile: () => request('/auth/profile'),
   logout: () => request('/auth/logout', { method: 'POST' }),
 
+  // Master Data (public — no auth required)
+  getStates: () => request('/public/states'),
+  getDistricts: (state) => request(`/public/districts?state=${encodeURIComponent(state)}`),
+
   // Instruments
   getInstruments: (params = '') => request(`/instruments${params ? `?${params}` : ''}`),
   getInstrumentById: (id) => request(`/instruments/${id}`),

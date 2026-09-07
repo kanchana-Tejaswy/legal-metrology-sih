@@ -34,6 +34,17 @@ export const authController = {
         });
       }
 
+      // Validate State / District relationship (backend trust boundary)
+      if (state && district) {
+        const validDistricts = await db.getDistricts(state);
+        if (validDistricts.length > 0 && !validDistricts.includes(district)) {
+          return res.status(400).json({
+            success: false,
+            message: `"${district}" is not a valid district in "${state}". Please select a valid State and District combination.`
+          });
+        }
+      }
+
       // Check existing user
       const existing = await db.findUserByEmail(email);
       if (existing) {

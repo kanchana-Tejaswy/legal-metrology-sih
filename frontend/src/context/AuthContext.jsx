@@ -17,7 +17,10 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     async function verifyAuth() {
-      if (token) {
+      if (!token) {
+        setUser(null);
+        localStorage.removeItem('lm_auth_user');
+      } else {
         try {
           const res = await api.getProfile();
           if (res.success && res.user) {

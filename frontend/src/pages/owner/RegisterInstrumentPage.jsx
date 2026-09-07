@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../../services/api';
-import { Scale, Upload, AlertCircle, ArrowLeft, CheckCircle } from 'lucide-react';
+import { SearchableSelect } from '../../components/common/SearchableSelect';
+import { Scale, Upload, AlertCircle, ArrowLeft, CheckCircle, Info, ShieldCheck, ShieldOff } from 'lucide-react';
+
 
 export const RegisterInstrumentPage = () => {
   const navigate = useNavigate();
@@ -32,13 +34,7 @@ export const RegisterInstrumentPage = () => {
         const res = await api.getCategories();
         if (res.success && res.categories) {
           setCategories(res.categories);
-          if (res.categories.length > 0) {
-            setFormData(prev => ({
-              ...prev,
-              category_id: res.categories[0].id,
-              instrument_type: res.categories[0].name
-            }));
-          }
+          // Do NOT auto-select the first category — let user choose explicitly
         }
       } catch (err) {
         console.error(err);
@@ -47,19 +43,25 @@ export const RegisterInstrumentPage = () => {
     loadCategories();
   }, []);
 
+  // Derive the selected category object for the regulatory info panel
+  const selectedCategory = categories.find(c => c.id === formData.category_id) || null;
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'category_id') {
-      const selected = categories.find(c => c.id === value);
-      setFormData({
-        ...formData,
-        category_id: value,
-        instrument_type: selected ? selected.name : formData.instrument_type
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+    setFormData({ ...formData, [name]: value });
   };
+
+  // Handler for category SearchableSelect
+  const handleCategoryChange = (categoryId) => {
+    const selected = categories.find(c => c.id === categoryId);
+    setFormData(prev => ({
+      ...prev,
+      category_id: categoryId,
+      instrument_type: selected ? selected.name : ''
+    }));
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -124,23 +126,70 @@ export const RegisterInstrumentPage = () => {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="cat-select" className="block text-xs font-bold text-slate-700 mb-1">
                   Instrument Category *
                 </label>
-                <select
-                  name="category_id"
+                <SearchableSelect
+                  id="cat-select"
+                  options={categories.map(c => ({
+                    value: c.id,
+                    label: `[${c.code}] ${c.name} — ${c.accuracy_class}`
+                  }))}
                   value={formData.category_id}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy bg-white"
+                  onChange={handleCategoryChange}
+                  placeholder="Search and select instrument category..."
+                  loading={categories.length === 0}
                   required
-                >
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      [{c.code}] {c.name} — {c.accuracy_class} (Verification Cycle: {c.verification_cycle_months} mo)
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
+
+              {/* Regulatory Information Panel — auto-populated, read-only */}
+              {selectedCategory && (
+                <div className="sm:col-span-2 bg-slate-50 border border-slate-200 rounded p-4">
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <Info size={13} className="text-gov-navy" />
+                    <span className="text-xs font-bold text-gov-navy uppercase tracking-wider">
+                      Regulatory Information
+                    </span>
+                    <span className="text-[10px] text-slate-500 ml-1">(auto-populated — read only)</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <div className="bg-white border border-slate-200 rounded p-2.5">
+                      <div className="text-[10px] text-slate-500 mb-0.5">Verification Cycle</div>
+                      <div className="text-xs font-bold text-gov-navy">{selectedCategory.verification_cycle_months} Months</div>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded p-2.5">
+                      <div className="text-[10px] text-slate-500 mb-0.5">Accuracy Class</div>
+                      <div className="text-xs font-bold text-gov-navy">{selectedCategory.accuracy_class}</div>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded p-2.5">
+                      <div className="text-[10px] text-slate-500 mb-0.5">Standard Fee</div>
+                      <div className="text-xs font-bold text-gov-navy">₹{selectedCategory.standard_fee.toFixed(2)}</div>
+                    </div>
+                    <div className={`border rounded p-2.5 ${
+                      selectedCategory.gatc_eligible
+                        ? 'bg-emerald-50 border-emerald-200'
+                        : 'bg-amber-50 border-amber-200'
+                    }`}>
+                      <div className="text-[10px] text-slate-500 mb-0.5">GATC Eligibility</div>
+                      <div className={`text-xs font-bold flex items-center gap-1 ${
+                        selectedCategory.gatc_eligible ? 'text-emerald-700' : 'text-amber-700'
+                      }`}>
+                        {selectedCategory.gatc_eligible
+                          ? <><ShieldCheck size={11} /> Eligible</>  
+                          : <><ShieldOff size={11} /> LMO Only</>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  {!selectedCategory.gatc_eligible && (
+                    <p className="text-[10px] text-amber-700 mt-2 flex items-center gap-1">
+                      <ShieldOff size={10} />
+                      GATC verification is not applicable for this instrument category. Verification will be performed by an authorized Legal Metrology Officer (LMO) only.
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-bold text-slate-700 mb-1">

@@ -74,5 +74,39 @@ export const publicController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  /**
+   * GET /api/public/states
+   * Returns all Indian states and union territories — no auth required.
+   */
+  async getStates(req, res, next) {
+    try {
+      const states = await db.getStates();
+      return res.json({ success: true, states });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * GET /api/public/districts?state=<stateName>
+   * Returns districts belonging to the given state — no auth required.
+   * If the state is not found, returns an empty array (not a 404).
+   */
+  async getDistricts(req, res, next) {
+    try {
+      const { state } = req.query;
+      if (!state) {
+        return res.status(400).json({
+          success: false,
+          message: 'Query parameter "state" is required.'
+        });
+      }
+      const districts = await db.getDistricts(state);
+      return res.json({ success: true, state, districts });
+    } catch (err) {
+      next(err);
+    }
   }
 };

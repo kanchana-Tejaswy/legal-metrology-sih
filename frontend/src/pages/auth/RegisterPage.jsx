@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
+import { SearchableSelect } from '../../components/common/SearchableSelect';
 import {
   Building2,
   FileCheck,
@@ -8,7 +9,8 @@ import {
   AlertCircle,
   Upload,
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  MapPin
 } from 'lucide-react';
 
 export const RegisterPage = () => {
@@ -22,8 +24,8 @@ export const RegisterPage = () => {
     password: '',
     confirm_password: '',
     business_address: '',
-    state: 'Maharashtra',
-    district: 'Mumbai',
+    state: '',
+    district: '',
     pincode: '',
     trade_license_no: '',
     gstin: ''
@@ -34,8 +36,65 @@ export const RegisterPage = () => {
   const [error, setError] = useState(null);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
+  // Master data
+  const [states, setStates] = useState([]);
+  const [districts, setDistricts] = useState([]);
+  const [statesLoading, setStatesLoading] = useState(true);
+  const [districtsLoading, setDistrictsLoading] = useState(false);
+
+  // Load states on mount
+  useEffect(() => {
+    async function loadStates() {
+      try {
+        const res = await api.getStates();
+        if (res.success && res.states) {
+          setStates(res.states);
+        }
+      } catch (err) {
+        console.error('Failed to load states:', err);
+      } finally {
+        setStatesLoading(false);
+      }
+    }
+    loadStates();
+  }, []);
+
+  // Load districts whenever state changes
+  useEffect(() => {
+    if (!formData.state) {
+      setDistricts([]);
+      return;
+    }
+    async function loadDistricts() {
+      setDistrictsLoading(true);
+      try {
+        const res = await api.getDistricts(formData.state);
+        if (res.success && res.districts) {
+          setDistricts(res.districts);
+        } else {
+          setDistricts([]);
+        }
+      } catch (err) {
+        console.error('Failed to load districts:', err);
+        setDistricts([]);
+      } finally {
+        setDistrictsLoading(false);
+      }
+    }
+    loadDistricts();
+  }, [formData.state]);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleStateChange = (selectedState) => {
+    // Clear district whenever state changes
+    setFormData(prev => ({ ...prev, state: selectedState, district: '' }));
+  };
+
+  const handleDistrictChange = (selectedDistrict) => {
+    setFormData(prev => ({ ...prev, district: selectedDistrict }));
   };
 
   const handleDocAdd = (e) => {
@@ -59,6 +118,16 @@ export const RegisterPage = () => {
 
     if (formData.password.length < 6) {
       setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    if (!formData.state) {
+      setError('Please select a State.');
+      return;
+    }
+
+    if (!formData.district) {
+      setError('Please select a District.');
       return;
     }
 
@@ -101,7 +170,7 @@ export const RegisterPage = () => {
               <span>Statutory Review Status: PENDING VERIFICATION</span>
             </div>
             <p className="leading-relaxed">
-              Your business stakeholder account for <strong>"{formData.business_name}"</strong> has been registered.
+              Your business stakeholder account for <strong>&ldquo;{formData.business_name}&rdquo;</strong> has been registered.
               In accordance with Legal Metrology statutory regulations, your account is currently <strong>PENDING</strong> review and approval by the Department Administrator.
             </p>
             <p className="leading-relaxed text-[11px] text-amber-800">
@@ -139,7 +208,7 @@ export const RegisterPage = () => {
             Instrument Owner / Business Owner Registration
           </h2>
           <p className="text-xs text-slate-300 mt-1">
-            Mandatory statutory registration for commercial users, traders, retailers, and industrial users of weighing & measuring instruments.
+            Mandatory statutory registration for commercial users, traders, retailers, and industrial users of weighing &amp; measuring instruments.
           </p>
         </div>
 
@@ -249,28 +318,47 @@ export const RegisterPage = () => {
                 />
               </div>
 
+              {/* State — Searchable Dropdown */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">State *</label>
-                <input
-                  type="text"
-                  name="state"
+                <label htmlFor="reg-state" className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
+                  <MapPin size={11} className="text-gov-navy" />
+                  State *
+                </label>
+                <SearchableSelect
+                  id="reg-state"
+                  options={states}
                   value={formData.state}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  onChange={handleStateChange}
+                  placeholder="Select State"
+                  loading={statesLoading}
                   required
                 />
               </div>
 
+              {/* District — Cascading Searchable Dropdown */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">District / Ward *</label>
-                <input
-                  type="text"
-                  name="district"
+                <label htmlFor="reg-district" className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
+                  <MapPin size={11} className="text-gov-navy" />
+                  District / Ward *
+                  {!formData.state && (
+                    <span className="text-[10px] text-slate-400 font-normal ml-1">(select State first)</span>
+                  )}
+                </label>
+                <SearchableSelect
+                  id="reg-district"
+                  options={districts}
                   value={formData.district}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  onChange={handleDistrictChange}
+                  placeholder={formData.state ? 'Select District' : 'Select State first'}
+                  disabled={!formData.state}
+                  loading={districtsLoading}
                   required
                 />
+                {formData.state && !formData.district && !districtsLoading && (
+                  <p className="text-[10px] text-amber-600 mt-1">
+                    Please select a district within <strong>{formData.state}</strong>.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -401,3 +489,4 @@ export const RegisterPage = () => {
     </div>
   );
 };
+
