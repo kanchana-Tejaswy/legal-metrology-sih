@@ -180,6 +180,7 @@ export const GATCDashboard = () => {
       <DataTable
         columns={columns}
         data={applications}
+        loading={loading}
         searchPlaceholder="Filter GATC applications by ID, serial, category..."
       />
     </div>

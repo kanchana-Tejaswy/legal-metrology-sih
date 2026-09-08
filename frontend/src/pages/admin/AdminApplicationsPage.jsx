@@ -50,14 +50,22 @@ export const AdminApplicationsPage = () => {
     }
   };
 
+  // Sync default verifierId when verifierType changes in the allocation modal
+  React.useEffect(() => {
+    if (verifierType === 'LMO') {
+      setVerifierId(officers.lmos[0]?.user_id || '');
+    } else {
+      setVerifierId(officers.gatcs[0]?.user_id || '');
+    }
+  }, [verifierType, officers]);
+
   useEffect(() => {
     loadData();
   }, []);
 
   const openAllocationModal = (app) => {
     setAllocatingApp(app);
-    setVerifierType('LMO');
-    setVerifierId(officers.lmos[0]?.user_id || '');
+    setVerifierType('LMO'); // useEffect will sync verifierId automatically
     setAllocationNotes('Allocated for statutory on-site physical verification.');
     setError(null);
   };
@@ -247,6 +255,7 @@ export const AdminApplicationsPage = () => {
       <DataTable
         columns={columns}
         data={applications}
+        loading={loading}
         searchPlaceholder="Filter by application ID, business, serial, status..."
       />
 
@@ -287,10 +296,7 @@ export const AdminApplicationsPage = () => {
                     name="vType"
                     value="LMO"
                     checked={verifierType === 'LMO'}
-                    onChange={() => {
-                      setVerifierType('LMO');
-                      setVerifierId(officers.lmos[0]?.user_id || '');
-                    }}
+                    onChange={() => setVerifierType('LMO')}
                   />
                   <div>
                     <div className="font-bold text-gov-navy">Legal Metrology Officer (LMO)</div>
@@ -308,10 +314,7 @@ export const AdminApplicationsPage = () => {
                     name="vType"
                     value="GATC"
                     checked={verifierType === 'GATC'}
-                    onChange={() => {
-                      setVerifierType('GATC');
-                      setVerifierId(officers.gatcs[0]?.user_id || '');
-                    }}
+                    onChange={() => setVerifierType('GATC')}
                   />
                   <div>
                     <div className="font-bold text-purple-900">GATC Test Centre</div>

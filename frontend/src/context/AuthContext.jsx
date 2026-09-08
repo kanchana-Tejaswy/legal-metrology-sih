@@ -28,8 +28,12 @@ export const AuthProvider = ({ children }) => {
             localStorage.setItem('lm_auth_user', JSON.stringify(res.user));
           }
         } catch (err) {
-          console.warn('Session verification failed, logging out:', err.message);
-          logout();
+          console.warn('Session verification failed, clearing session:', err.message);
+          // Clear session inline to avoid TDZ issue with logout const
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem('lm_auth_token');
+          localStorage.removeItem('lm_auth_user');
         }
       }
       setLoading(false);
