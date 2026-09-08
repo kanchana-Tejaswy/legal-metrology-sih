@@ -106,6 +106,7 @@ export const AdminAuditLogsPage = () => {
       <DataTable
         columns={columns}
         data={logs}
+        loading={loading}
         searchPlaceholder="Filter audit trail by action, email, entity ID, or IP..."
       />
     </div>

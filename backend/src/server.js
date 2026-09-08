@@ -65,8 +65,9 @@ app.use('/api/notifications', notificationRoutes);
 // Central error handler
 app.use(errorHandler);
 
-// Background job: Check certificate expiries
+// Background job: Check certificate expiries at startup and every 6 hours
 notificationService.checkExpiringCertificates();
+setInterval(() => notificationService.checkExpiringCertificates(), 6 * 60 * 60 * 1000);
 
 // Start HTTP Server
 const server = app.listen(PORT, () => {

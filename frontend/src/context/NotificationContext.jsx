@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { api } from '../services/api';
 import { useAuth } from './AuthContext';
 
@@ -10,29 +10,38 @@ export const NotificationProvider = ({ children }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [toasts, setToasts] = useState([]);
 
+  const isFetching = useRef(false);
+
   const fetchNotifications = async () => {
-    if (!user) return;
+    if (!user?.id || isFetching.current) return;
     try {
+      isFetching.current = true;
       const res = await api.getNotifications();
       if (res.success && res.notifications) {
         setNotifications(res.notifications);
         setUnreadCount(res.notifications.filter(n => !n.is_read).length);
       }
     } catch (err) {
-      console.error('Failed to fetch notifications:', err);
+      // Quietly ignore network failures during background poll
+    } finally {
+      isFetching.current = false;
     }
   };
 
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       fetchNotifications();
-      const interval = setInterval(fetchNotifications, 20000);
+      const interval = setInterval(() => {
+        if (!document.hidden) {
+          fetchNotifications();
+        }
+      }, 45000);
       return () => clearInterval(interval);
     } else {
       setNotifications([]);
       setUnreadCount(0);
     }
-  }, [user]);
+  }, [user?.id]);
 
   const showToast = (message, type = 'info') => {
     const id = Date.now();

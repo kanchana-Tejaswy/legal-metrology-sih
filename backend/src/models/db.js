@@ -758,21 +758,77 @@ function enrichCertificateValidity(cert) {
   return copy;
 }
 
+// Helper: Validate UUID format for Postgres UUID columns
+const isUUID = (str) => typeof str === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+
 // DATABASE ADAPTER EXPORTS
 export const db = {
-  // Users
+  // ─── Users ─────────────────────────────────────────────────────────────
   async findUserByEmail(email) {
-    const normalized = email.trim().toLowerCase();
+    const normalized = (email || '').trim().toLowerCase();
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', normalized)
+          .maybeSingle();
+        if (error) console.error('Supabase findUserByEmail error:', error.message);
+        if (data) return data;
+      } catch (err) {
+        console.error('Supabase findUserByEmail exception:', err.message);
+      }
+    }
     const user = memoryDb.users.find(u => u.email.toLowerCase() === normalized);
     return user ? { ...user } : null;
   },
 
   async findUserById(id) {
+    if (isSupabaseConfigured && isUUID(id)) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+        if (error) console.error('Supabase findUserById error:', error.message);
+        if (data) return data;
+      } catch (err) {
+        console.error('Supabase findUserById exception:', err.message);
+      }
+    }
     const user = memoryDb.users.find(u => u.id === id);
     return user ? { ...user } : null;
   },
 
   async createUser(userData) {
+    if (isSupabaseConfigured) {
+      try {
+        const payload = {
+          email: (userData.email || '').trim().toLowerCase(),
+          password_hash: userData.password_hash,
+          role: userData.role || 'OWNER',
+          status: userData.status || 'PENDING',
+          full_name: userData.full_name,
+          phone: userData.phone
+        };
+        if (userData.id && isUUID(userData.id)) {
+          payload.id = userData.id;
+        }
+        const { data, error } = await supabase
+          .from('users')
+          .insert([payload])
+          .select()
+          .single();
+        if (error) {
+          console.error('Supabase createUser error:', error.message);
+          throw error;
+        }
+        return data;
+      } catch (err) {
+        console.error('Supabase createUser exception, falling back to memoryDb:', err.message);
+      }
+    }
     const newUser = {
       id: userData.id || `u-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       email: userData.email.trim().toLowerCase(),
@@ -788,6 +844,33 @@ export const db = {
   },
 
   async updateUserStatus(userId, status, reviewedBy = null, reviewNotes = null) {
+    if (isSupabaseConfigured && isUUID(userId)) {
+      try {
+        const { data, error } = await supabase
+          .from('users')
+          .update({ status, updated_at: new Date().toISOString() })
+          .eq('id', userId)
+          .select()
+          .single();
+        if (error) throw error;
+
+        const stakeholderUpdate = {
+          review_notes: reviewNotes,
+          reviewed_at: new Date().toISOString()
+        };
+        if (reviewedBy && isUUID(reviewedBy)) {
+          stakeholderUpdate.reviewed_by = reviewedBy;
+        }
+        await supabase
+          .from('stakeholders')
+          .update(stakeholderUpdate)
+          .eq('user_id', userId);
+
+        return data;
+      } catch (err) {
+        console.error('Supabase updateUserStatus error:', err.message);
+      }
+    }
     const user = memoryDb.users.find(u => u.id === userId);
     if (user) {
       user.status = status;
@@ -803,6 +886,37 @@ export const db = {
   },
 
   async getAllUsers(roleFilter = null) {
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase.from('users').select('*');
+        if (roleFilter) {
+          query = query.eq('role', roleFilter);
+        }
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) {
+          console.error('Supabase getAllUsers error:', error.message);
+        } else if (data && data.length > 0) {
+          const userIds = data.map(u => u.id);
+          const [sRes, lRes, gRes] = await Promise.all([
+            supabase.from('stakeholders').select('*').in('user_id', userIds),
+            supabase.from('lmo_profiles').select('*').in('user_id', userIds),
+            supabase.from('gatc_profiles').select('*').in('user_id', userIds)
+          ]);
+          const stakeholders = sRes.data || [];
+          const lmos = lRes.data || [];
+          const gatcs = gRes.data || [];
+
+          return data.map(u => ({
+            ...u,
+            stakeholder: stakeholders.find(s => s.user_id === u.id) || null,
+            lmo_profile: lmos.find(l => l.user_id === u.id) || null,
+            gatc_profile: gatcs.find(g => g.user_id === u.id) || null
+          }));
+        }
+      } catch (err) {
+        console.error('Supabase getAllUsers exception:', err.message);
+      }
+    }
     let list = memoryDb.users;
     if (roleFilter) {
       list = list.filter(u => u.role === roleFilter);
@@ -820,13 +934,53 @@ export const db = {
     });
   },
 
-  // Stakeholders
+  // ─── Stakeholders ──────────────────────────────────────────────────────
   async getStakeholderByUserId(userId) {
+    if (isSupabaseConfigured && isUUID(userId)) {
+      try {
+        const { data, error } = await supabase
+          .from('stakeholders')
+          .select('*')
+          .eq('user_id', userId)
+          .maybeSingle();
+        if (error) console.error('Supabase getStakeholderByUserId error:', error.message);
+        if (data) return data;
+      } catch (err) {
+        console.error('Supabase getStakeholderByUserId exception:', err.message);
+      }
+    }
     const s = memoryDb.stakeholders.find(item => item.user_id === userId);
     return s ? { ...s } : null;
   },
 
   async createStakeholder(stakeholderData) {
+    if (isSupabaseConfigured) {
+      try {
+        const payload = {
+          user_id: stakeholderData.user_id,
+          business_name: stakeholderData.business_name,
+          business_address: stakeholderData.business_address,
+          state: stakeholderData.state || 'Maharashtra',
+          district: stakeholderData.district || 'Mumbai',
+          pincode: stakeholderData.pincode || '400001',
+          trade_license_no: stakeholderData.trade_license_no || null,
+          gstin: stakeholderData.gstin || null,
+          supporting_documents: stakeholderData.supporting_documents || []
+        };
+        const { data, error } = await supabase
+          .from('stakeholders')
+          .insert([payload])
+          .select()
+          .single();
+        if (error) {
+          console.error('Supabase createStakeholder error:', error.message);
+          throw error;
+        }
+        return data;
+      } catch (err) {
+        console.error('Supabase createStakeholder exception:', err.message);
+      }
+    }
     const newStakeholder = {
       id: `s-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       user_id: stakeholderData.user_id,
@@ -847,7 +1001,7 @@ export const db = {
     return { ...newStakeholder };
   },
 
-  // Master Data
+  // ─── Master Data ───────────────────────────────────────────────────────
   async getStates() {
     return [...memoryDb.states];
   },
@@ -858,27 +1012,88 @@ export const db = {
     return districts ? [...districts] : [];
   },
 
-  // Categories
+  // ─── Categories ────────────────────────────────────────────────────────
   async getCategories() {
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('instrument_categories')
+          .select('*')
+          .order('name', { ascending: true });
+        if (error) console.error('Supabase getCategories error:', error.message);
+        if (data && data.length > 0) return data;
+      } catch (err) {
+        console.error('Supabase getCategories exception:', err.message);
+      }
+    }
     return [...memoryDb.categories];
   },
 
   async getCategoryById(id) {
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase.from('instrument_categories').select('*');
+        if (isUUID(id)) {
+          query = query.eq('id', id);
+        } else {
+          query = query.eq('code', id);
+        }
+        const { data, error } = await query.maybeSingle();
+        if (error) console.error('Supabase getCategoryById error:', error.message);
+        if (data) return data;
+      } catch (err) {
+        console.error('Supabase getCategoryById exception:', err.message);
+      }
+    }
     const cat = memoryDb.categories.find(c => c.id === id || c.code === id);
     return cat ? { ...cat } : null;
   },
 
-  // Instruments
+  // ─── Instruments ───────────────────────────────────────────────────────
   async getInstruments(filters = {}) {
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase.from('instruments').select(`
+          *,
+          category:instrument_categories(*)
+        `);
+        if (filters.owner_id && isUUID(filters.owner_id)) {
+          query = query.eq('owner_id', filters.owner_id);
+        }
+        if (filters.status) {
+          query = query.eq('current_status', filters.status);
+        }
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) {
+          console.error('Supabase getInstruments error:', error.message);
+        } else if (data) {
+          const instIds = data.map(i => i.id);
+          let certs = [];
+          if (instIds.length > 0) {
+            const { data: certData } = await supabase
+              .from('certificates')
+              .select('*')
+              .in('instrument_id', instIds);
+            certs = certData || [];
+          }
+          return data.map(inst => {
+            const instCerts = certs
+              .filter(c => c.instrument_id === inst.id)
+              .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            return {
+              ...inst,
+              category: Array.isArray(inst.category) ? inst.category[0] : inst.category,
+              certificate: enrichCertificateValidity(instCerts[0] || null)
+            };
+          });
+        }
+      } catch (err) {
+        console.error('Supabase getInstruments exception:', err.message);
+      }
+    }
     let items = memoryDb.instruments;
-    if (filters.owner_id) {
-      items = items.filter(i => i.owner_id === filters.owner_id);
-    }
-    if (filters.status) {
-      items = items.filter(i => i.current_status === filters.status);
-    }
-
-    // Enrich with Category and Latest Certificate details
+    if (filters.owner_id) items = items.filter(i => i.owner_id === filters.owner_id);
+    if (filters.status) items = items.filter(i => i.current_status === filters.status);
     return items.map(inst => {
       const category = memoryDb.categories.find(c => c.id === inst.category_id);
       const cert = memoryDb.certificates
@@ -893,6 +1108,44 @@ export const db = {
   },
 
   async getInstrumentById(id) {
+    if (isSupabaseConfigured && isUUID(id)) {
+      try {
+        const { data: inst, error } = await supabase
+          .from('instruments')
+          .select(`
+            *,
+            category:instrument_categories(*),
+            owner:users(id, full_name, email)
+          `)
+          .eq('id', id)
+          .maybeSingle();
+        if (error) {
+          console.error('Supabase getInstrumentById error:', error.message);
+        } else if (inst) {
+          const { data: certs } = await supabase
+            .from('certificates')
+            .select('*')
+            .eq('instrument_id', id)
+            .order('created_at', { ascending: false });
+          const { data: stakeholder } = await supabase
+            .from('stakeholders')
+            .select('*')
+            .eq('user_id', inst.owner_id)
+            .maybeSingle();
+          return {
+            ...inst,
+            category: Array.isArray(inst.category) ? inst.category[0] : inst.category,
+            certificate: enrichCertificateValidity(certs?.[0] || null),
+            owner: inst.owner ? {
+              ...inst.owner,
+              business_name: stakeholder?.business_name
+            } : null
+          };
+        }
+      } catch (err) {
+        console.error('Supabase getInstrumentById exception:', err.message);
+      }
+    }
     const inst = memoryDb.instruments.find(i => i.id === id);
     if (!inst) return null;
     const category = memoryDb.categories.find(c => c.id === inst.category_id);
@@ -910,6 +1163,20 @@ export const db = {
   },
 
   async checkSerialUnique(categoryId, serialNumber) {
+    if (isSupabaseConfigured && isUUID(categoryId)) {
+      try {
+        const { data, error } = await supabase
+          .from('instruments')
+          .select('id')
+          .eq('category_id', categoryId)
+          .ilike('serial_number', (serialNumber || '').trim());
+        if (!error && data) {
+          return data.length === 0;
+        }
+      } catch (err) {
+        console.error('Supabase checkSerialUnique exception:', err.message);
+      }
+    }
     const exists = memoryDb.instruments.some(
       i => i.category_id === categoryId && i.serial_number.toLowerCase() === serialNumber.trim().toLowerCase()
     );
@@ -917,6 +1184,38 @@ export const db = {
   },
 
   async createInstrument(instData) {
+    if (isSupabaseConfigured) {
+      try {
+        const payload = {
+          owner_id: instData.owner_id,
+          category_id: instData.category_id,
+          instrument_type: instData.instrument_type,
+          manufacturer: instData.manufacturer,
+          model_number: instData.model_number,
+          serial_number: (instData.serial_number || '').trim(),
+          max_capacity: parseFloat(instData.max_capacity),
+          min_capacity: parseFloat(instData.min_capacity),
+          unit: instData.unit || 'kg',
+          verification_scale_interval: instData.verification_scale_interval ? parseFloat(instData.verification_scale_interval) : null,
+          location: instData.location,
+          description: instData.description || '',
+          photograph_url: instData.photograph_url || null,
+          current_status: 'PENDING'
+        };
+        const { data, error } = await supabase
+          .from('instruments')
+          .insert([payload])
+          .select()
+          .single();
+        if (error) {
+          console.error('Supabase createInstrument error:', error.message);
+          throw error;
+        }
+        return this.getInstrumentById(data.id);
+      } catch (err) {
+        console.error('Supabase createInstrument exception:', err.message);
+      }
+    }
     const newInst = {
       id: `inst-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       owner_id: instData.owner_id,
@@ -940,6 +1239,19 @@ export const db = {
   },
 
   async updateInstrumentStatus(id, status) {
+    if (isSupabaseConfigured && isUUID(id)) {
+      try {
+        const { data, error } = await supabase
+          .from('instruments')
+          .update({ current_status: status, updated_at: new Date().toISOString() })
+          .eq('id', id)
+          .select()
+          .single();
+        if (!error && data) return data;
+      } catch (err) {
+        console.error('Supabase updateInstrumentStatus exception:', err.message);
+      }
+    }
     const inst = memoryDb.instruments.find(i => i.id === id);
     if (inst) {
       inst.current_status = status;
@@ -948,8 +1260,85 @@ export const db = {
     return null;
   },
 
-  // Applications
+  // ─── Applications ──────────────────────────────────────────────────────
   async getApplications(filters = {}) {
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase.from('applications').select(`
+          *,
+          instrument:instruments(
+            *,
+            category:instrument_categories(*)
+          ),
+          owner:users(id, full_name, email, phone),
+          assignments(*),
+          schedules(*)
+        `);
+        if (filters.owner_id && isUUID(filters.owner_id)) {
+          query = query.eq('owner_id', filters.owner_id);
+        }
+        if (filters.status) {
+          query = query.eq('status', filters.status);
+        }
+        const { data, error } = await query.order('created_at', { ascending: false });
+        if (error) {
+          console.error('Supabase getApplications error:', error.message);
+        } else if (data) {
+          const ownerIds = [...new Set(data.map(a => a.owner_id).filter(Boolean))];
+          let stakeholders = [];
+          if (ownerIds.length > 0) {
+            const { data: sData } = await supabase.from('stakeholders').select('*').in('user_id', ownerIds);
+            stakeholders = sData || [];
+          }
+
+          const allAssignments = data.flatMap(a => a.assignments || []);
+          const verifierIds = [...new Set(allAssignments.filter(as => as.is_active).map(as => as.verifier_id).filter(Boolean))];
+          let verifierUsers = [];
+          if (verifierIds.length > 0) {
+            const { data: vData } = await supabase.from('users').select('id, full_name, email').in('id', verifierIds);
+            verifierUsers = vData || [];
+          }
+
+          let results = data.map(app => {
+            const activeAssignment = Array.isArray(app.assignments)
+              ? app.assignments.find(as => as.is_active)
+              : (app.assignments?.is_active ? app.assignments : null);
+
+            let verifierDetails = null;
+            if (activeAssignment) {
+              const vUser = verifierUsers.find(u => u.id === activeAssignment.verifier_id);
+              verifierDetails = {
+                type: activeAssignment.verifier_type,
+                id: activeAssignment.verifier_id,
+                name: vUser?.full_name || 'Assigned Verifier',
+                email: vUser?.email
+              };
+            }
+
+            const stakeholder = stakeholders.find(s => s.user_id === app.owner_id);
+            const schedule = Array.isArray(app.schedules) ? app.schedules[0] : app.schedules;
+            const inst = app.instrument;
+            const category = inst ? (Array.isArray(inst.category) ? inst.category[0] : inst.category) : null;
+
+            return {
+              ...app,
+              instrument: inst ? { ...inst, category } : null,
+              owner: app.owner ? { ...app.owner, business_name: stakeholder?.business_name } : null,
+              assignment: activeAssignment,
+              verifier: verifierDetails,
+              schedule
+            };
+          });
+
+          if (filters.verifier_id) {
+            results = results.filter(a => a.assignment && a.assignment.verifier_id === filters.verifier_id);
+          }
+          return results;
+        }
+      } catch (err) {
+        console.error('Supabase getApplications exception:', err.message);
+      }
+    }
     let items = memoryDb.applications;
     if (filters.owner_id) {
       items = items.filter(a => a.owner_id === filters.owner_id);
@@ -994,6 +1383,77 @@ export const db = {
   },
 
   async getApplicationById(id) {
+    if (isSupabaseConfigured) {
+      try {
+        const { data: app, error } = await supabase
+          .from('applications')
+          .select(`
+            *,
+            instrument:instruments(
+              *,
+              category:instrument_categories(*)
+            ),
+            owner:users(id, full_name, email, phone),
+            assignments(*),
+            schedules(*),
+            verification_records(*)
+          `)
+          .eq('id', id)
+          .maybeSingle();
+        if (app) {
+          const activeAssignment = Array.isArray(app.assignments)
+            ? app.assignments.find(as => as.is_active)
+            : (app.assignments?.is_active ? app.assignments : null);
+
+          let verifier = null;
+          if (activeAssignment) {
+            const { data: vUser } = await supabase
+              .from('users')
+              .select('id, full_name, email, role')
+              .eq('id', activeAssignment.verifier_id)
+              .maybeSingle();
+            verifier = {
+              type: activeAssignment.verifier_type,
+              id: activeAssignment.verifier_id,
+              name: vUser?.full_name,
+              email: vUser?.email
+            };
+          }
+
+          const { data: stakeholder } = await supabase
+            .from('stakeholders')
+            .select('*')
+            .eq('user_id', app.owner_id)
+            .maybeSingle();
+
+          const { data: cert } = await supabase
+            .from('certificates')
+            .select('*')
+            .eq('instrument_id', app.instrument_id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          const schedule = Array.isArray(app.schedules) ? app.schedules[0] : app.schedules;
+          const verificationRecord = Array.isArray(app.verification_records) ? app.verification_records[0] : app.verification_records;
+          const inst = app.instrument;
+          const category = inst ? (Array.isArray(inst.category) ? inst.category[0] : inst.category) : null;
+
+          return {
+            ...app,
+            instrument: inst ? { ...inst, category } : null,
+            owner: app.owner ? { ...app.owner, business_name: stakeholder?.business_name, stakeholder } : null,
+            assignment: activeAssignment,
+            verifier,
+            schedule,
+            verification_record: verificationRecord,
+            certificate: enrichCertificateValidity(cert)
+          };
+        }
+      } catch (err) {
+        console.error('Supabase getApplicationById exception:', err.message);
+      }
+    }
     const app = memoryDb.applications.find(a => a.id === id);
     if (!app) return null;
     const instrument = memoryDb.instruments.find(i => i.id === app.instrument_id);
@@ -1029,6 +1489,40 @@ export const db = {
   },
 
   async createApplication(appData) {
+    if (isSupabaseConfigured) {
+      try {
+        const year = new Date().getFullYear();
+        const { count } = await supabase.from('applications').select('*', { count: 'exact', head: true });
+        const appId = `LM-APP-${year}-${String((count || 0) + 101).padStart(6, '0')}`;
+
+        const payload = {
+          id: appId,
+          owner_id: appData.owner_id,
+          instrument_id: appData.instrument_id,
+          application_type: appData.application_type || 'NEW',
+          preferred_date: appData.preferred_date,
+          preferred_time: appData.preferred_time || '10:00 AM',
+          remarks: appData.remarks || '',
+          status: 'SUBMITTED',
+          documents: appData.documents || []
+        };
+
+        const { data, error } = await supabase
+          .from('applications')
+          .insert([payload])
+          .select()
+          .single();
+        if (error) {
+          console.error('Supabase createApplication error:', error.message);
+          throw error;
+        }
+
+        await this.updateInstrumentStatus(appData.instrument_id, 'PENDING');
+        return this.getApplicationById(data.id);
+      } catch (err) {
+        console.error('Supabase createApplication exception:', err.message);
+      }
+    }
     const year = new Date().getFullYear();
     const count = memoryDb.applications.length + 101;
     const appId = `LM-APP-${year}-${String(count).padStart(6, '0')}`;
@@ -1048,14 +1542,24 @@ export const db = {
     };
 
     memoryDb.applications.push(newApp);
-
-    // Update instrument status to PENDING / UNDER_VERIFICATION
     await this.updateInstrumentStatus(appData.instrument_id, 'PENDING');
-
     return this.getApplicationById(newApp.id);
   },
 
   async updateApplicationStatus(appId, status) {
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('applications')
+          .update({ status, updated_at: new Date().toISOString() })
+          .eq('id', appId)
+          .select()
+          .single();
+        if (!error && data) return data;
+      } catch (err) {
+        console.error('Supabase updateApplicationStatus exception:', err.message);
+      }
+    }
     const app = memoryDb.applications.find(a => a.id === appId);
     if (app) {
       app.status = status;
@@ -1065,9 +1569,35 @@ export const db = {
     return null;
   },
 
-  // Allocation & Scheduling
+  // ─── Allocation & Scheduling ───────────────────────────────────────────
   async assignApplication(appId, verifierType, verifierId, assignedBy, notes = '') {
-    // Deactivate previous active assignment
+    if (isSupabaseConfigured) {
+      try {
+        await supabase
+          .from('assignments')
+          .update({ is_active: false })
+          .eq('application_id', appId);
+
+        const payload = {
+          application_id: appId,
+          verifier_type: verifierType,
+          verifier_id: verifierId,
+          assigned_by: assignedBy,
+          notes,
+          is_active: true
+        };
+        const { data, error } = await supabase
+          .from('assignments')
+          .insert([payload])
+          .select()
+          .single();
+        if (error) throw error;
+        await this.updateApplicationStatus(appId, 'ASSIGNED');
+        return data;
+      } catch (err) {
+        console.error('Supabase assignApplication exception:', err.message);
+      }
+    }
     memoryDb.assignments.forEach(as => {
       if (as.application_id === appId) as.is_active = false;
     });
@@ -1075,7 +1605,7 @@ export const db = {
     const newAssignment = {
       id: `as-${Date.now()}`,
       application_id: appId,
-      verifier_type: verifierType, // 'LMO' or 'GATC'
+      verifier_type: verifierType,
       verifier_id: verifierId,
       assigned_by: assignedBy,
       assigned_date: new Date().toISOString(),
@@ -1083,14 +1613,59 @@ export const db = {
       is_active: true
     };
     memoryDb.assignments.push(newAssignment);
-
-    // Update Application status
     await this.updateApplicationStatus(appId, 'ASSIGNED');
-
     return newAssignment;
   },
 
   async scheduleVerification(appId, date, time, location, verifierId, notes = '') {
+    if (isSupabaseConfigured) {
+      try {
+        const { data: existing } = await supabase
+          .from('schedules')
+          .select('id')
+          .eq('application_id', appId)
+          .maybeSingle();
+
+        let res;
+        if (existing) {
+          const { data, error } = await supabase
+            .from('schedules')
+            .update({
+              scheduled_date: date,
+              scheduled_time: time,
+              location,
+              verifier_id: verifierId,
+              status: 'SCHEDULED',
+              reschedule_reason: notes,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', existing.id)
+            .select()
+            .single();
+          if (error) throw error;
+          res = data;
+        } else {
+          const { data, error } = await supabase
+            .from('schedules')
+            .insert([{
+              application_id: appId,
+              scheduled_date: date,
+              scheduled_time: time,
+              location,
+              verifier_id: verifierId,
+              status: 'SCHEDULED'
+            }])
+            .select()
+            .single();
+          if (error) throw error;
+          res = data;
+        }
+        await this.updateApplicationStatus(appId, 'SCHEDULED');
+        return res;
+      } catch (err) {
+        console.error('Supabase scheduleVerification exception:', err.message);
+      }
+    }
     let schedule = memoryDb.schedules.find(s => s.application_id === appId);
     if (schedule) {
       schedule.scheduled_date = date;
@@ -1118,14 +1693,49 @@ export const db = {
     return schedule;
   },
 
-  // Verification
+  // ─── Verification ──────────────────────────────────────────────────────
   async createVerificationRecord(recordData) {
+    if (isSupabaseConfigured) {
+      try {
+        const payload = {
+          application_id: recordData.application_id,
+          instrument_id: recordData.instrument_id,
+          verifier_id: recordData.verifier_id,
+          verifier_role: recordData.verifier_role,
+          inspection_date: new Date().toISOString(),
+          visual_checklist: recordData.visual_checklist || {},
+          metrological_tests: recordData.metrological_tests || {},
+          observations: recordData.observations || '',
+          test_results: recordData.test_results || '',
+          evidence_photos: recordData.evidence_photos || [],
+          remarks: recordData.remarks || '',
+          result: recordData.result
+        };
+        const { data, error } = await supabase
+          .from('verification_records')
+          .insert([payload])
+          .select()
+          .single();
+        if (error) throw error;
+
+        if (recordData.result === 'PASS') {
+          await this.updateApplicationStatus(recordData.application_id, 'COMPLETED');
+          await this.updateInstrumentStatus(recordData.instrument_id, 'VALID');
+        } else {
+          await this.updateApplicationStatus(recordData.application_id, 'FAILED');
+          await this.updateInstrumentStatus(recordData.instrument_id, 'FAILED');
+        }
+        return data;
+      } catch (err) {
+        console.error('Supabase createVerificationRecord exception:', err.message);
+      }
+    }
     const newRecord = {
       id: `vr-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       application_id: recordData.application_id,
       instrument_id: recordData.instrument_id,
       verifier_id: recordData.verifier_id,
-      verifier_role: recordData.verifier_role, // 'LMO' or 'GATC'
+      verifier_role: recordData.verifier_role,
       inspection_date: new Date().toISOString(),
       visual_checklist: recordData.visual_checklist || {},
       metrological_tests: recordData.metrological_tests || {},
@@ -1133,12 +1743,11 @@ export const db = {
       test_results: recordData.test_results || '',
       evidence_photos: recordData.evidence_photos || [],
       remarks: recordData.remarks || '',
-      result: recordData.result, // 'PASS' or 'FAIL'
+      result: recordData.result,
       created_at: new Date().toISOString()
     };
     memoryDb.verification_records.push(newRecord);
 
-    // Update Application and Instrument status based on PASS / FAIL
     if (recordData.result === 'PASS') {
       await this.updateApplicationStatus(recordData.application_id, 'COMPLETED');
       await this.updateInstrumentStatus(recordData.instrument_id, 'VALID');
@@ -1150,8 +1759,40 @@ export const db = {
     return newRecord;
   },
 
-  // Certificates
+  // ─── Certificates ──────────────────────────────────────────────────────
   async createCertificate(certData) {
+    if (isSupabaseConfigured) {
+      try {
+        const year = new Date().getFullYear();
+        const { count } = await supabase.from('certificates').select('*', { count: 'exact', head: true });
+        const certId = `CERT-${year}-${String((count || 0) + 101).padStart(6, '0')}`;
+
+        const payload = {
+          id: certId,
+          verification_record_id: certData.verification_record_id,
+          instrument_id: certData.instrument_id,
+          owner_id: certData.owner_id,
+          verifier_id: certData.verifier_id,
+          verifying_authority: certData.verifying_authority || 'Department of Legal Metrology, Government of India',
+          verifier_name: certData.verifier_name,
+          verification_date: certData.verification_date || new Date().toISOString().split('T')[0],
+          valid_until: certData.valid_until,
+          status: 'VALID',
+          qr_verification_url: `/verify/${certId}`,
+          digital_signature_hash: certData.digital_signature_hash || `SHA256:${Math.random().toString(36).substring(2)}${Date.now()}`
+        };
+
+        const { data, error } = await supabase
+          .from('certificates')
+          .insert([payload])
+          .select()
+          .single();
+        if (error) throw error;
+        return this.getCertificateById(data.id);
+      } catch (err) {
+        console.error('Supabase createCertificate exception:', err.message);
+      }
+    }
     const year = new Date().getFullYear();
     const count = memoryDb.certificates.length + 101;
     const certId = `CERT-${year}-${String(count).padStart(6, '0')}`;
@@ -1182,6 +1823,48 @@ export const db = {
   },
 
   async getCertificates(filters = {}) {
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase.from('certificates').select(`
+          *,
+          instrument:instruments(*)
+        `);
+        if (filters.owner_id && isUUID(filters.owner_id)) {
+          query = query.eq('owner_id', filters.owner_id);
+        }
+        if (filters.status) {
+          query = query.eq('status', filters.status);
+        }
+        const { data, error } = await query.order('verification_date', { ascending: false });
+        if (error) {
+          console.error('Supabase getCertificates error:', error.message);
+        } else if (data) {
+          const ownerIds = [...new Set(data.map(c => c.owner_id).filter(Boolean))];
+          let stakeholders = [];
+          let owners = [];
+          if (ownerIds.length > 0) {
+            const [sRes, uRes] = await Promise.all([
+              supabase.from('stakeholders').select('*').in('user_id', ownerIds),
+              supabase.from('users').select('id, full_name, email').in('id', ownerIds)
+            ]);
+            stakeholders = sRes.data || [];
+            owners = uRes.data || [];
+          }
+          return data.map(c => {
+            const enriched = enrichCertificateValidity(c);
+            const stakeholder = stakeholders.find(s => s.user_id === c.owner_id);
+            const owner = owners.find(u => u.id === c.owner_id);
+            return {
+              ...enriched,
+              instrument: c.instrument,
+              owner: owner ? { ...owner, business_name: stakeholder?.business_name } : null
+            };
+          });
+        }
+      } catch (err) {
+        console.error('Supabase getCertificates exception:', err.message);
+      }
+    }
     let items = memoryDb.certificates;
     if (filters.owner_id) {
       items = items.filter(c => c.owner_id === filters.owner_id);
@@ -1204,6 +1887,47 @@ export const db = {
   },
 
   async getCertificateById(id) {
+    if (isSupabaseConfigured) {
+      try {
+        const { data: cert, error } = await supabase
+          .from('certificates')
+          .select(`
+            *,
+            instrument:instruments(
+              *,
+              category:instrument_categories(*)
+            ),
+            verification_record:verification_records(*)
+          `)
+          .eq('id', id)
+          .maybeSingle();
+        if (cert) {
+          const enriched = enrichCertificateValidity(cert);
+          const [ownerRes, verifierRes, stakeholderRes] = await Promise.all([
+            supabase.from('users').select('id, full_name, email').eq('id', cert.owner_id).maybeSingle(),
+            cert.verifier_id ? supabase.from('users').select('id, full_name, email, role').eq('id', cert.verifier_id).maybeSingle() : Promise.resolve({ data: null }),
+            supabase.from('stakeholders').select('*').eq('user_id', cert.owner_id).maybeSingle()
+          ]);
+
+          const owner = ownerRes.data;
+          const verifier = verifierRes.data;
+          const stakeholder = stakeholderRes.data;
+          const inst = cert.instrument;
+          const category = inst ? (Array.isArray(inst.category) ? inst.category[0] : inst.category) : null;
+          const vr = Array.isArray(cert.verification_record) ? cert.verification_record[0] : cert.verification_record;
+
+          return {
+            ...enriched,
+            instrument: inst ? { ...inst, category } : null,
+            owner: owner ? { ...owner, business_name: stakeholder?.business_name, stakeholder } : null,
+            verifier: verifier ? { id: verifier.id, name: verifier.full_name, email: verifier.email, role: verifier.role } : null,
+            verification_record: vr
+          };
+        }
+      } catch (err) {
+        console.error('Supabase getCertificateById exception:', err.message);
+      }
+    }
     const cert = memoryDb.certificates.find(c => c.id === id);
     if (!cert) return null;
     const enriched = enrichCertificateValidity(cert);
@@ -1224,6 +1948,30 @@ export const db = {
   },
 
   async revokeCertificate(id, reason, revokedBy) {
+    if (isSupabaseConfigured) {
+      try {
+        const updatePayload = {
+          status: 'REVOKED',
+          revocation_reason: reason,
+          revoked_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        };
+        if (revokedBy && isUUID(revokedBy)) {
+          updatePayload.revoked_by = revokedBy;
+        }
+        const { data: cert, error } = await supabase
+          .from('certificates')
+          .update(updatePayload)
+          .eq('id', id)
+          .select()
+          .single();
+        if (error) throw error;
+        await this.updateInstrumentStatus(cert.instrument_id, 'FAILED');
+        return this.getCertificateById(id);
+      } catch (err) {
+        console.error('Supabase revokeCertificate exception:', err.message);
+      }
+    }
     const cert = memoryDb.certificates.find(c => c.id === id);
     if (!cert) return null;
     cert.status = 'REVOKED';
@@ -1232,20 +1980,51 @@ export const db = {
     cert.revoked_by = revokedBy;
     cert.updated_at = new Date().toISOString();
 
-    // Mark corresponding instrument as FAILED or EXPIRED
     await this.updateInstrumentStatus(cert.instrument_id, 'FAILED');
-
     return this.getCertificateById(id);
   },
 
-  // Notifications
+  // ─── Notifications ─────────────────────────────────────────────────────
   async getNotifications(userId) {
+    if (isSupabaseConfigured && isUUID(userId)) {
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false });
+        if (!error && data) return data;
+      } catch (err) {
+        console.error('Supabase getNotifications exception:', err.message);
+      }
+    }
     return memoryDb.notifications
       .filter(n => n.user_id === userId)
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   },
 
   async createNotification(notifData) {
+    if (isSupabaseConfigured && isUUID(notifData.user_id)) {
+      try {
+        const payload = {
+          user_id: notifData.user_id,
+          title: notifData.title,
+          message: notifData.message,
+          type: notifData.type || 'INFO',
+          related_entity_type: notifData.related_entity_type || null,
+          related_entity_id: notifData.related_entity_id ? String(notifData.related_entity_id) : null,
+          is_read: false
+        };
+        const { data, error } = await supabase
+          .from('notifications')
+          .insert([payload])
+          .select()
+          .single();
+        if (!error && data) return data;
+      } catch (err) {
+        console.error('Supabase createNotification exception:', err.message);
+      }
+    }
     const newNotif = {
       id: `n-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       user_id: notifData.user_id,
@@ -1262,6 +2041,19 @@ export const db = {
   },
 
   async markNotificationRead(id) {
+    if (isSupabaseConfigured && isUUID(id)) {
+      try {
+        const { data, error } = await supabase
+          .from('notifications')
+          .update({ is_read: true })
+          .eq('id', id)
+          .select()
+          .single();
+        if (!error && data) return data;
+      } catch (err) {
+        console.error('Supabase markNotificationRead exception:', err.message);
+      }
+    }
     const notif = memoryDb.notifications.find(n => n.id === id);
     if (notif) {
       notif.is_read = true;
@@ -1270,8 +2062,30 @@ export const db = {
     return null;
   },
 
-  // Audit Logs
+  // ─── Audit Logs ────────────────────────────────────────────────────────
   async createAuditLog(logData) {
+    if (isSupabaseConfigured) {
+      try {
+        const payload = {
+          user_id: (logData.user_id && isUUID(logData.user_id)) ? logData.user_id : null,
+          user_email: logData.user_email || 'system',
+          action: logData.action,
+          entity_type: logData.entity_type,
+          entity_id: String(logData.entity_id),
+          previous_state: logData.previous_state || null,
+          new_state: logData.new_state || null,
+          ip_address: logData.ip_address || '127.0.0.1'
+        };
+        const { data, error } = await supabase
+          .from('audit_logs')
+          .insert([payload])
+          .select()
+          .single();
+        if (!error && data) return data;
+      } catch (err) {
+        console.error('Supabase createAuditLog exception:', err.message);
+      }
+    }
     const newLog = {
       id: `al-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`,
       user_id: logData.user_id || null,
@@ -1289,6 +2103,17 @@ export const db = {
   },
 
   async getAuditLogs(filters = {}) {
+    if (isSupabaseConfigured) {
+      try {
+        let query = supabase.from('audit_logs').select('*').order('created_at', { ascending: false });
+        if (filters.action) query = query.ilike('action', `%${filters.action}%`);
+        if (filters.entity_type) query = query.eq('entity_type', filters.entity_type);
+        const { data, error } = await query;
+        if (!error && data) return data;
+      } catch (err) {
+        console.error('Supabase getAuditLogs exception:', err.message);
+      }
+    }
     let logs = memoryDb.audit_logs;
     if (filters.action) {
       logs = logs.filter(l => l.action.includes(filters.action));
@@ -1299,8 +2124,23 @@ export const db = {
     return logs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   },
 
-  // Profiles
+  // ─── Profiles ──────────────────────────────────────────────────────────
   async getLmoProfiles() {
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('lmo_profiles')
+          .select('*, user:users(id, full_name, email)');
+        if (!error && data && data.length > 0) {
+          return data.map(lp => ({
+            ...lp,
+            user: Array.isArray(lp.user) ? lp.user[0] : lp.user
+          }));
+        }
+      } catch (err) {
+        console.error('Supabase getLmoProfiles exception:', err.message);
+      }
+    }
     return memoryDb.lmo_profiles.map(lp => {
       const user = memoryDb.users.find(u => u.id === lp.user_id);
       return { ...lp, user: user ? { id: user.id, full_name: user.full_name, email: user.email } : null };
@@ -1308,14 +2148,59 @@ export const db = {
   },
 
   async getGatcProfiles() {
+    if (isSupabaseConfigured) {
+      try {
+        const { data, error } = await supabase
+          .from('gatc_profiles')
+          .select('*, user:users(id, full_name, email)');
+        if (!error && data && data.length > 0) {
+          return data.map(gp => ({
+            ...gp,
+            user: Array.isArray(gp.user) ? gp.user[0] : gp.user
+          }));
+        }
+      } catch (err) {
+        console.error('Supabase getGatcProfiles exception:', err.message);
+      }
+    }
     return memoryDb.gatc_profiles.map(gp => {
       const user = memoryDb.users.find(u => u.id === gp.user_id);
       return { ...gp, user: user ? { id: user.id, full_name: user.full_name, email: user.email } : null };
     });
   },
 
-  // Aggregated Stats for Dashboards
+  // ─── Aggregated Stats for Dashboards ───────────────────────────────────
   async getAdminStats() {
+    if (isSupabaseConfigured) {
+      try {
+        const [appsRes, certsRes, ownersRes, instRes] = await Promise.all([
+          supabase.from('applications').select('status'),
+          supabase.from('certificates').select('status, valid_until'),
+          supabase.from('users').select('id', { count: 'exact', head: true }).eq('role', 'OWNER').eq('status', 'PENDING'),
+          supabase.from('instruments').select('id', { count: 'exact', head: true })
+        ]);
+
+        const apps = appsRes.data || [];
+        const certs = (certsRes.data || []).map(enrichCertificateValidity);
+
+        return {
+          totalApplications: apps.length,
+          newApplications: apps.filter(a => a.status === 'SUBMITTED').length,
+          pendingAllocation: apps.filter(a => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW').length,
+          scheduled: apps.filter(a => a.status === 'SCHEDULED').length,
+          underVerification: apps.filter(a => a.status === 'ASSIGNED' || a.status === 'UNDER_VERIFICATION').length,
+          completed: apps.filter(a => a.status === 'COMPLETED').length,
+          failed: apps.filter(a => a.status === 'FAILED').length,
+          validCertificates: certs.filter(c => c.status === 'VALID').length,
+          expiredCertificates: certs.filter(c => c.status === 'EXPIRED').length,
+          revokedCertificates: certs.filter(c => c.status === 'REVOKED').length,
+          pendingStakeholders: ownersRes.count || 0,
+          totalInstruments: instRes.count || 0
+        };
+      } catch (err) {
+        console.error('Supabase getAdminStats exception:', err.message);
+      }
+    }
     const totalApps = memoryDb.applications.length;
     const newApps = memoryDb.applications.filter(a => a.status === 'SUBMITTED').length;
     const pendingAlloc = memoryDb.applications.filter(a => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW').length;
@@ -1324,13 +2209,11 @@ export const db = {
     const completed = memoryDb.applications.filter(a => a.status === 'COMPLETED').length;
     const failed = memoryDb.applications.filter(a => a.status === 'FAILED').length;
     
-    // Certificates stats
     const certs = memoryDb.certificates.map(enrichCertificateValidity);
     const validCerts = certs.filter(c => c.status === 'VALID').length;
     const expiredCerts = certs.filter(c => c.status === 'EXPIRED').length;
     const revokedCerts = certs.filter(c => c.status === 'REVOKED').length;
 
-    // Stakeholders pending
     const pendingStakeholders = memoryDb.users.filter(u => u.role === 'OWNER' && u.status === 'PENDING').length;
 
     return {
@@ -1350,6 +2233,43 @@ export const db = {
   },
 
   async getOwnerStats(ownerId) {
+    if (isSupabaseConfigured && isUUID(ownerId)) {
+      try {
+        const [instRes, appsRes, certsRes] = await Promise.all([
+          supabase.from('instruments').select('id').eq('owner_id', ownerId),
+          supabase.from('applications').select('status').eq('owner_id', ownerId),
+          supabase.from('certificates').select('status, valid_until').eq('owner_id', ownerId)
+        ]);
+
+        const instruments = instRes.data || [];
+        const applications = appsRes.data || [];
+        const certs = (certsRes.data || []).map(enrichCertificateValidity);
+
+        const validCerts = certs.filter(c => c.status === 'VALID').length;
+        const expiredCerts = certs.filter(c => c.status === 'EXPIRED').length;
+
+        const now = new Date();
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(now.getDate() + 30);
+        const expiringSoon = certs.filter(c => {
+          if (c.status !== 'VALID') return false;
+          const expiry = new Date(c.valid_until);
+          return expiry >= now && expiry <= thirtyDaysFromNow;
+        }).length;
+
+        const pendingApps = applications.filter(a => ['SUBMITTED', 'UNDER_REVIEW', 'ASSIGNED', 'SCHEDULED', 'UNDER_VERIFICATION'].includes(a.status)).length;
+
+        return {
+          totalInstruments: instruments.length,
+          pendingApplications: pendingApps,
+          validCertificates: validCerts,
+          expiringSoon,
+          expiredCertificates: expiredCerts
+        };
+      } catch (err) {
+        console.error('Supabase getOwnerStats exception:', err.message);
+      }
+    }
     const instruments = memoryDb.instruments.filter(i => i.owner_id === ownerId);
     const applications = memoryDb.applications.filter(a => a.owner_id === ownerId);
     const certs = memoryDb.certificates.filter(c => c.owner_id === ownerId).map(enrichCertificateValidity);
@@ -1357,7 +2277,6 @@ export const db = {
     const validCerts = certs.filter(c => c.status === 'VALID').length;
     const expiredCerts = certs.filter(c => c.status === 'EXPIRED').length;
     
-    // Expiring soon: valid and valid_until is within 30 days
     const now = new Date();
     const thirtyDaysFromNow = new Date();
     thirtyDaysFromNow.setDate(now.getDate() + 30);

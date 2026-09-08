@@ -152,6 +152,7 @@ export const AdminCertificatesPage = () => {
       <DataTable
         columns={columns}
         data={certificates}
+        loading={loading}
         searchPlaceholder="Filter certificates by certificate number, serial, business, status..."
       />
 

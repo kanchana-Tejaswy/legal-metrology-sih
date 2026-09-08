@@ -165,6 +165,7 @@ export const AdminStakeholdersPage = () => {
       <DataTable
         columns={columns}
         data={stakeholders}
+        loading={loading}
         searchPlaceholder="Filter stakeholders by name, business, trade license, status..."
       />
 

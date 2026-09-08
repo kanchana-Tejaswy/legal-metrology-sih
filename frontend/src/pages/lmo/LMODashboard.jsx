@@ -172,6 +172,7 @@ export const LMODashboard = () => {
       <DataTable
         columns={columns}
         data={applications}
+        loading={loading}
         searchPlaceholder="Filter assigned applications by ID, serial, establishment..."
       />
     </div>

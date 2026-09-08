@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Search, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, Inbox, Loader2 } from 'lucide-react';
 
 export const DataTable = ({
   columns,
   data = [],
+  loading = false,
   searchPlaceholder = 'Search records...',
   filterComponent,
   pageSize = 10,
@@ -61,7 +62,19 @@ export const DataTable = ({
             </tr>
           </thead>
           <tbody>
-            {paginatedData.length === 0 ? (
+            {loading ? (
+              // Skeleton loading rows
+              Array.from({ length: 5 }).map((_, rIdx) => (
+                <tr key={rIdx} className="animate-pulse">
+                  {columns.map((_, cIdx) => (
+                    <td key={cIdx}>
+                      <div className="h-4 bg-slate-200 rounded w-3/4 my-1"></div>
+                      {cIdx === 0 && <div className="h-3 bg-slate-100 rounded w-1/2 mt-1"></div>}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : paginatedData.length === 0 ? (
               <tr>
                 <td colSpan={columns.length} className="text-center py-8 text-slate-500">
                   <div className="flex flex-col items-center justify-center space-y-2">
@@ -88,14 +101,17 @@ export const DataTable = ({
       {/* Pagination Footer */}
       <div className="p-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-600 gap-2">
         <div>
-          Showing {filteredData.length > 0 ? startIndex + 1 : 0} to{' '}
-          {Math.min(startIndex + pageSize, filteredData.length)} of {filteredData.length} entries
+          {loading
+            ? <span className="flex items-center gap-1.5"><Loader2 size={12} className="animate-spin" /> Loading records...</span>
+            : <>Showing {filteredData.length > 0 ? startIndex + 1 : 0} to{' '}
+              {Math.min(startIndex + pageSize, filteredData.length)} of {filteredData.length} entries</>
+          }
         </div>
 
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || loading}
             className="p-1 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-200 transition"
           >
             <ChevronLeft size={16} />
@@ -105,7 +121,7 @@ export const DataTable = ({
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || loading}
             className="p-1 rounded border border-slate-300 disabled:opacity-40 hover:bg-slate-200 transition"
           >
             <ChevronRight size={16} />
