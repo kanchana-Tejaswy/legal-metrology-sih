@@ -18,6 +18,7 @@ import {
   QrCode
 } from 'lucide-react';
 import { StatusBadge } from '../common/StatusBadge';
+import { PaymentModal } from '../common/PaymentModal';
 
 export const VerificationWorkspace = ({ verifierRole = 'LMO' }) => {
   const { id } = useParams(); // Application ID
@@ -29,6 +30,10 @@ export const VerificationWorkspace = ({ verifierRole = 'LMO' }) => {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [successResult, setSuccessResult] = useState(null);
+
+  // Payment state (feature/razorpay-payment)
+  const [paymentModal, setPaymentModal] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState(null); // { verification_record_id, application_id }
 
   // Form State
   const [checklist, setChecklist] = useState({
@@ -122,13 +127,41 @@ export const VerificationWorkspace = ({ verifierRole = 'LMO' }) => {
 
       const res = await api.submitVerification(id, payload);
       if (res.success) {
-        setSuccessResult(res);
+        if (finalResult === 'PASS' && res.payment_required) {
+          // ── PAYMENT GATE (feature/razorpay-payment) ────────────────────
+          // Verification passed. Store pending state and open payment modal.
+          // Certificate will NOT be shown until backend confirms payment.
+          setPendingVerification({
+            verification_record_id: res.verification_record?.id,
+            application_id: res.application_id || id,
+            verification_record: res.verification_record
+          });
+          setPaymentModal(true);
+        } else {
+          // FAIL or legacy — show existing success screen unchanged
+          setSuccessResult(res);
+        }
       }
     } catch (err) {
       setError(err.data?.message || err.message || 'Failed to submit verification result.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  /**
+   * Called by PaymentModal after backend verifies payment and returns certificate.
+   * Constructs a successResult compatible with the existing success screen (unchanged).
+   */
+  const handlePaymentSuccess = ({ certificate, qr_code }) => {
+    setPaymentModal(false);
+    setSuccessResult({
+      success: true,
+      verification_record: pendingVerification?.verification_record || { result: 'PASS' },
+      certificate,
+      qr_code
+    });
+    setPendingVerification(null);
   };
 
   if (loading) {
@@ -212,7 +245,19 @@ export const VerificationWorkspace = ({ verifierRole = 'LMO' }) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Payment Modal — feature/razorpay-payment */}
+      {pendingVerification && (
+        <PaymentModal
+          isOpen={paymentModal}
+          onClose={() => setPaymentModal(false)}
+          applicationId={pendingVerification.application_id}
+          verificationRecordId={pendingVerification.verification_record_id}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
+
       {/* Top Breadcrumb */}
+
       <Link
         to={verifierRole === 'LMO' ? '/lmo' : '/gatc'}
         className="inline-flex items-center space-x-1 text-xs text-gov-blue hover:underline font-medium"

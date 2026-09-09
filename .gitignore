@@ -8,9 +8,11 @@ frontend/dist/
 
 # Environment variables (NEVER commit these)
 .env
+.env.*
 .env.local
 .env.production
 backend/.env
+frontend/.env
 
 # Logs
 *.log
@@ -22,5 +24,6 @@ Thumbs.db
 
 # Dev tools
 *.bat
+*.cmd
 *.ps1
 test_write.txt
