@@ -1,11 +1,11 @@
 /**
  * paymentController.js
- * Feature: Razorpay TEST/Sandbox Payment Integration
+ * Feature: Multi-Provider Payment Integration (Demo Provider + Razorpay Provider)
  * Branch: feature/razorpay-payment
  *
  * Endpoints:
  *   POST /api/payments/create-order  — Called after LMO/GATC PASS
- *   POST /api/payments/verify        — Called after frontend Razorpay success
+ *   POST /api/payments/verify        — Called after payment checkout completion
  *   GET  /api/payments/:applicationId — Payment status query
  */
 
@@ -16,13 +16,9 @@ import { qrService } from '../services/qrService.js';
 import { auditService } from '../services/auditService.js';
 import { notificationService } from '../services/notificationService.js';
 
-// ── Default fee if category doesn't specify one ──────────────────────────────
-const DEFAULT_FEE_RUPEES = 100; // ₹100 for SIH demo
+// Default fee if category doesn't specify one (₹100 for SIH demo)
+const DEFAULT_FEE_RUPEES = 100;
 
-/**
- * Determine verification fee from instrument category.
- * Backend controls the amount — frontend cannot override this.
- */
 function getVerificationFee(application) {
   const fee = application?.instrument?.category?.standard_fee;
   if (fee && parseFloat(fee) > 0) return parseFloat(fee);
@@ -34,11 +30,8 @@ export const paymentController = {
   /**
    * POST /api/payments/create-order
    *
-   * Creates a Razorpay payment order for a verified (PASS) application.
+   * Creates a payment order for a verified (PASS) application.
    * Called by LMO/GATC workspace after PASS is recorded.
-   * Returns order details + public KEY_ID to frontend.
-   *
-   * Request body: { application_id, verification_record_id }
    */
   async createOrder(req, res, next) {
     try {
@@ -78,8 +71,8 @@ export const paymentController = {
       // Backend determines amount — frontend cannot override
       const amountRupees = getVerificationFee(application);
 
-      // Create Razorpay order
-      const { paymentRecord, razorpayOrder, keyId } = await paymentService.createOrder({
+      // Create order with configured provider (DEMO or RAZORPAY)
+      const orderResult = await paymentService.createOrder({
         applicationId: application_id,
         verificationRecordId: verification_record_id || null,
         ownerId: application.owner_id,
@@ -92,6 +85,8 @@ export const paymentController = {
         }
       });
 
+      const { paymentRecord, order, key_id, keyId, provider } = orderResult;
+
       // Audit log
       await auditService.log(
         req,
@@ -100,24 +95,27 @@ export const paymentController = {
         paymentRecord.id,
         null,
         {
+          provider: provider || paymentService.getProvider(),
           application_id,
-          razorpay_order_id: razorpayOrder.id,
-          amount_paise: razorpayOrder.amount,
+          order_id: order.id,
+          amount_paise: order.amount,
           amount_rupees: amountRupees
         }
       );
 
       return res.status(201).json({
         success: true,
-        message: 'Payment order created. Proceed with Razorpay TEST checkout.',
+        provider: provider || paymentService.getProvider(),
+        message: `Payment order created (${(provider || 'demo').toUpperCase()} mode).`,
         order: {
-          id: razorpayOrder.id,
-          amount: razorpayOrder.amount,       // in paise
+          id: order.id,
+          amount: order.amount,       // in paise
           amount_rupees: amountRupees,
-          currency: razorpayOrder.currency,
-          receipt: razorpayOrder.receipt
+          currency: order.currency,
+          receipt: order.receipt,
+          verification_token: order.verification_token
         },
-        key_id: keyId,                        // Public — safe to send to frontend
+        key_id: key_id || keyId || 'demo_public_key',
         payment_id: paymentRecord.id,
         instrument_info: paymentRecord.instrument_info
       });
@@ -130,25 +128,34 @@ export const paymentController = {
   /**
    * POST /api/payments/verify
    *
-   * SECURITY GATE: Verifies Razorpay payment signature using HMAC-SHA256.
+   * SECURITY GATE: Verifies payment authenticity server-side.
    * Only after successful verification does certificate generation proceed.
-   *
-   * Request body:
-   *  { razorpay_order_id, razorpay_payment_id, razorpay_signature, application_id }
    */
   async verifyAndIssueCertificate(req, res, next) {
     try {
       const {
+        order_id,
+        payment_id,
+        signature,
+        verification_token,
         razorpay_order_id,
         razorpay_payment_id,
         razorpay_signature,
-        application_id
+        demo_order_id,
+        demo_payment_id,
+        demo_signature,
+        application_id,
+        verification_id
       } = req.body;
 
-      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature || !application_id) {
+      const effectiveOrderId = order_id || demo_order_id || razorpay_order_id;
+      const effectivePaymentId = payment_id || demo_payment_id || razorpay_payment_id;
+      const effectiveSignature = signature || demo_signature || razorpay_signature || verification_token;
+
+      if (!effectiveOrderId || !effectivePaymentId || !effectiveSignature || !application_id) {
         return res.status(400).json({
           success: false,
-          message: 'razorpay_order_id, razorpay_payment_id, razorpay_signature, and application_id are all required.'
+          message: 'order_id, payment_id, signature, and application_id are all required.'
         });
       }
 
@@ -156,16 +163,20 @@ export const paymentController = {
       let verifiedPayment;
       try {
         verifiedPayment = await paymentService.verifyPayment({
-          razorpayOrderId: razorpay_order_id,
-          razorpayPaymentId: razorpay_payment_id,
-          razorpaySignature: razorpay_signature
+          orderId: effectiveOrderId,
+          paymentId: effectivePaymentId,
+          signature: effectiveSignature,
+          applicationId: application_id,
+          razorpayOrderId: effectiveOrderId,
+          razorpayPaymentId: effectivePaymentId,
+          razorpaySignature: effectiveSignature
         });
       } catch (signatureErr) {
         await auditService.log(
           req,
           'PAYMENT_VERIFICATION_FAILED',
           'PAYMENT',
-          razorpay_order_id,
+          effectiveOrderId,
           null,
           { error: signatureErr.message, application_id }
         );
@@ -183,7 +194,10 @@ export const paymentController = {
 
       // ── STEP 3: Duplicate certificate guard ───────────────────────────────
       const existingCerts = await db.getCertificates({ owner_id: application.owner_id });
-      const dupCert = existingCerts?.find(c => c.verification_record_id === verifiedPayment.verification_record_id);
+      const dupCert = existingCerts?.find(c => 
+        c.application_id === application_id || 
+        (verifiedPayment.verification_record_id && c.verification_record_id === verifiedPayment.verification_record_id)
+      );
       if (dupCert) {
         return res.json({
           success: true,
@@ -195,12 +209,8 @@ export const paymentController = {
       }
 
       // ── STEP 4: Load verification record ──────────────────────────────────
-      // The verification record was created during the PASS submit
-      // We stored its ID in the payment record
-      const verificationRecordId = verifiedPayment.verification_record_id;
+      const verificationRecordId = verifiedPayment.verification_record_id || verification_id;
 
-      // Build a minimal verificationRecord object for certificateService
-      // (mirrors structure expected by generateCertificateData)
       const verificationRecord = {
         id: verificationRecordId,
         application_id,
@@ -232,8 +242,9 @@ export const paymentController = {
         verifiedPayment.id,
         { status: 'CREATED' },
         {
-          razorpay_payment_id,
-          razorpay_order_id,
+          provider: verifiedPayment.payment_provider || 'DEMO',
+          payment_id: effectivePaymentId,
+          order_id: effectiveOrderId,
           amount_paise: verifiedPayment.amount_paise,
           verified_at: verifiedPayment.verified_at
         }
@@ -279,7 +290,7 @@ export const paymentController = {
 
   /**
    * GET /api/payments/:applicationId
-   * Query payment status for a given application (Owner/Admin use)
+   * Query payment status for a given application
    */
   async getPaymentStatus(req, res, next) {
     try {
@@ -295,6 +306,7 @@ export const paymentController = {
         payment_status: payment.status,
         payment: {
           id: payment.id,
+          provider: payment.payment_provider || 'DEMO',
           application_id: payment.application_id,
           amount_paise: payment.amount_paise,
           amount_rupees: (payment.amount_paise / 100).toFixed(2),

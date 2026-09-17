@@ -1,17 +1,17 @@
 /**
  * PaymentModal.jsx
- * Feature: Razorpay TEST/Sandbox Payment Integration
+ * Feature: Multi-Provider Payment Integration (Demo Provider + Razorpay Provider)
  * Branch: feature/razorpay-payment
  *
  * Uses existing Modal component and design system.
- * Loads Razorpay checkout.js from CDN (no npm package needed).
- * Frontend only handles UI — all security is on the backend.
+ * Handles both Demo Gateway and Razorpay Checkout.
+ * Frontend only handles UI — all security verification happens on the backend.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Modal } from './Modal';
 import { api } from '../../services/api';
-import { IndianRupee, CreditCard, ShieldCheck, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { IndianRupee, CreditCard, ShieldCheck, AlertCircle, Loader2, CheckCircle2, XCircle } from 'lucide-react';
 
 /**
  * Dynamically load Razorpay checkout.js from CDN
@@ -53,7 +53,7 @@ export const PaymentModal = ({
   const [errorMsg, setErrorMsg] = useState('');
   const [certificate, setCertificate] = useState(null);
 
-  // Fetch/create Razorpay order when modal opens
+  // Fetch/create payment order when modal opens
   const initiateOrder = useCallback(async () => {
     setStep('loading');
     setErrorMsg('');
@@ -88,8 +88,52 @@ export const PaymentModal = ({
     }
   }, [isOpen, step, initiateOrder]);
 
-  // Launch Razorpay checkout popup
-  const handlePay = async () => {
+  // Handle Demo Payment Flow
+  const handleDemoPay = async () => {
+    setStep('processing');
+    setErrorMsg('');
+
+    try {
+      const demoPaymentId = `pay_demo_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 6)}`;
+      
+      const verifyRes = await api.verifyPayment({
+        order_id: orderInfo.order.id,
+        payment_id: demoPaymentId,
+        signature: orderInfo.order.verification_token,
+        application_id: applicationId,
+        verification_id: verificationRecordId
+      });
+
+      if (!verifyRes.success) {
+        throw new Error(verifyRes.message || 'Backend payment verification failed.');
+      }
+
+      setCertificate(verifyRes.certificate);
+      setStep('success');
+
+      if (onPaymentSuccess) {
+        onPaymentSuccess({
+          certificate: verifyRes.certificate,
+          qr_code: verifyRes.qr_code
+        });
+      }
+    } catch (verifyErr) {
+      setErrorMsg(
+        verifyErr.data?.message ||
+        verifyErr.message ||
+        'Payment verification failed. Contact Legal Metrology department.'
+      );
+      setStep('error');
+    }
+  };
+
+  // Handle Demo Failure Simulation
+  const handleDemoSimulateFailure = () => {
+    setErrorMsg('Payment failed: Transaction cancelled by bank or user. No certificate issued.');
+  };
+
+  // Launch Razorpay checkout popup (for Razorpay mode)
+  const handleRazorpayPay = async () => {
     setStep('processing');
     setErrorMsg('');
 
@@ -100,12 +144,11 @@ export const PaymentModal = ({
       return;
     }
 
-    // Razorpay public KEY_ID (from Vite env — safe to expose)
     const keyId = orderInfo.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
 
     const options = {
       key: keyId,
-      amount: orderInfo.order.amount,       // in paise
+      amount: orderInfo.order.amount,
       currency: orderInfo.order.currency,
       name: 'Dept. of Legal Metrology',
       description: `Verification Fee — ${orderInfo.instrument_info?.type || 'Instrument'} (${orderInfo.instrument_info?.serial || ''})`,
@@ -114,21 +157,15 @@ export const PaymentModal = ({
         name: orderInfo.instrument_info?.owner_name || '',
       },
       theme: {
-        color: '#1e3a5f'   // gov-navy — matches existing design system
+        color: '#1e3a5f'
       },
       modal: {
         ondismiss: () => {
-          // User closed/cancelled the Razorpay popup
           setStep('ready');
           setErrorMsg('Payment cancelled. You may retry to get your certificate.');
         }
       },
       handler: async (response) => {
-        // ── THIS IS NOT THE SECURITY GATE ──────────────────────────────────
-        // This callback fires on frontend when Razorpay reports success.
-        // We do NOT trust this — we send all params to backend for verification.
-        // Backend will do HMAC-SHA256 signature check before issuing certificate.
-        // ───────────────────────────────────────────────────────────────────
         try {
           setStep('processing');
           const verifyRes = await api.verifyPayment({
@@ -145,7 +182,6 @@ export const PaymentModal = ({
           setCertificate(verifyRes.certificate);
           setStep('success');
 
-          // Notify parent (VerificationWorkspace) with full certificate data
           if (onPaymentSuccess) {
             onPaymentSuccess({
               certificate: verifyRes.certificate,
@@ -172,24 +208,33 @@ export const PaymentModal = ({
     rzp.open();
   };
 
+  const isDemo = orderInfo?.provider === 'demo' || orderInfo?.order?.id?.startsWith('order_demo_');
+
   const amountRupees = orderInfo?.order?.amount_rupees ||
-    (orderInfo?.order?.amount ? (orderInfo.order.amount / 100).toFixed(2) : '0.00');
+    (orderInfo?.order?.amount ? (orderInfo.order.amount / 100).toFixed(2) : '100.00');
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={step === 'success' ? onClose : onClose}
-      title="Verification Fee Payment — Test Mode"
+      title="Verification Fee Payment — Statutory Gate"
       maxWidth="max-w-md"
     >
       <div className="space-y-5">
 
-        {/* TEST MODE Notice */}
+        {/* Mode Notice */}
         <div className="bg-amber-50 border border-amber-300 rounded p-3 text-xs text-amber-900 flex items-start space-x-2">
           <ShieldCheck size={15} className="flex-shrink-0 mt-0.5 text-amber-700" />
           <span>
-            <strong>TEST / SANDBOX MODE</strong> — No real money. Use Razorpay test card:{' '}
-            <code className="bg-amber-100 px-1 rounded font-mono">4111 1111 1111 1111</code>, any CVV, any future date.
+            {isDemo ? (
+              <>
+                <strong>SIH DEMO MODE</strong> — Statutory verification fee gate active. Simulated payment with server-side HMAC signature verification.
+              </>
+            ) : (
+              <>
+                <strong>RAZORPAY TEST MODE</strong> — Use Razorpay test card: <code className="bg-amber-100 px-1 rounded font-mono">4111 1111 1111 1111</code>, any CVV.
+              </>
+            )}
           </span>
         </div>
 
@@ -237,26 +282,41 @@ export const PaymentModal = ({
               </div>
             )}
 
+            {/* Primary Action Button */}
             <button
               type="button"
-              onClick={handlePay}
+              onClick={isDemo ? handleDemoPay : handleRazorpayPay}
               disabled={step === 'processing'}
-              className="w-full bg-gov-navy hover:bg-gov-blue text-white py-3 rounded font-bold text-sm flex items-center justify-center space-x-2 transition disabled:opacity-60"
-              id="razorpay-pay-btn"
+              className="w-full bg-gov-navy hover:bg-gov-blue text-white py-3 rounded font-bold text-sm flex items-center justify-center space-x-2 transition disabled:opacity-60 shadow-sm"
+              id="pay-confirm-btn"
             >
-              {step === 'processing'
-                ? <><Loader2 size={16} className="animate-spin" /><span>Processing...</span></>
-                : <><CreditCard size={16} /><span>Pay ₹{amountRupees} — TEST Checkout</span></>
-              }
+              {step === 'processing' ? (
+                <><Loader2 size={16} className="animate-spin" /><span>Verifying Transaction...</span></>
+              ) : (
+                <><CreditCard size={16} /><span>Pay ₹{amountRupees} — {isDemo ? 'Confirm Demo Payment' : 'TEST Checkout'}</span></>
+              )}
             </button>
 
+            {/* Demo Failure Simulator (Only in Demo Mode) */}
+            {isDemo && step !== 'processing' && (
+              <button
+                type="button"
+                onClick={handleDemoSimulateFailure}
+                className="w-full border border-red-200 text-red-700 hover:bg-red-50 py-2 rounded text-xs font-medium transition flex items-center justify-center space-x-1.5"
+              >
+                <XCircle size={13} />
+                <span>Simulate Payment Failure (Test Negative Case)</span>
+              </button>
+            )}
+
+            {/* Cancel / Dismiss */}
             <button
               type="button"
               onClick={onClose}
               disabled={step === 'processing'}
               className="w-full border border-slate-300 text-slate-600 hover:bg-slate-50 py-2 rounded text-xs font-medium transition disabled:opacity-60"
             >
-              Cancel — Do Not Pay Now
+              Cancel — Do Not Issue Certificate
             </button>
           </div>
         )}
@@ -301,7 +361,7 @@ export const PaymentModal = ({
               onClick={onClose}
               className="w-full bg-emerald-700 hover:bg-emerald-800 text-white py-2.5 rounded font-semibold text-xs transition"
             >
-              View Certificate →
+              View Certificate & QR Code →
             </button>
           </div>
         )}

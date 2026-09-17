@@ -21,7 +21,11 @@ CREATE TABLE IF NOT EXISTS verification_payments (
     application_id        VARCHAR(50) NOT NULL REFERENCES applications(id),
     verification_record_id UUID REFERENCES verification_records(id),
     owner_id              UUID NOT NULL REFERENCES users(id),
-    razorpay_order_id     VARCHAR(100) UNIQUE NOT NULL,
+    payment_provider      VARCHAR(50) NOT NULL DEFAULT 'DEMO',  -- 'DEMO' | 'RAZORPAY'
+    order_id              VARCHAR(100) UNIQUE NOT NULL,
+    payment_id            VARCHAR(100),
+    signature             TEXT,
+    razorpay_order_id     VARCHAR(100),
     razorpay_payment_id   VARCHAR(100),
     razorpay_signature    TEXT,
     amount_paise          INTEGER NOT NULL,      -- Amount in paise (₹ × 100)
@@ -32,8 +36,12 @@ CREATE TABLE IF NOT EXISTS verification_payments (
     updated_at            TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Backward compatibility view for 'payments'
+CREATE OR REPLACE VIEW payments AS SELECT * FROM verification_payments;
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_payments_application ON verification_payments(application_id);
-CREATE INDEX IF NOT EXISTS idx_payments_order_id    ON verification_payments(razorpay_order_id);
+CREATE INDEX IF NOT EXISTS idx_payments_order_id    ON verification_payments(order_id);
 CREATE INDEX IF NOT EXISTS idx_payments_owner       ON verification_payments(owner_id);
 CREATE INDEX IF NOT EXISTS idx_payments_status      ON verification_payments(status);
+
