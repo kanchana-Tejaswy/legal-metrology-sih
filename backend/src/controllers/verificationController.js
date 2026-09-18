@@ -1,8 +1,8 @@
 import { db } from '../models/db.js';
-import { certificateService } from '../services/certificateService.js';
-import { qrService } from '../services/qrService.js';
 import { auditService } from '../services/auditService.js';
 import { notificationService } from '../services/notificationService.js';
+// NOTE: certificateService and qrService are now called from paymentController
+//       after payment is verified. They are NOT imported here anymore.
 
 export const verificationController = {
   /**
@@ -48,6 +48,13 @@ export const verificationController = {
 
   /**
    * Submit physical verification results (PASS or FAIL)
+   *
+   * IMPORTANT (feature/razorpay-payment):
+   *   - PASS: Creates verification record and returns payment_required: true.
+   *           Certificate is NOT generated here anymore.
+   *           Certificate is generated in paymentController.verifyAndIssueCertificate
+   *           AFTER successful Razorpay payment verification.
+   *   - FAIL: Completely unchanged.
    */
   async submitVerification(req, res, next) {
     try {
@@ -89,7 +96,7 @@ export const verificationController = {
         });
       }
 
-      // 1. Create verification record
+      // 1. Create verification record (always — for both PASS and FAIL)
       const verificationRecord = await db.createVerificationRecord({
         application_id: id,
         instrument_id: application.instrument_id,
@@ -115,53 +122,40 @@ export const verificationController = {
       );
 
       // 2. Handle PASS vs FAIL
-      let certificate = null;
-      let qrCodeData = null;
-
       if (result === 'PASS') {
-        // PASS Workflow:
-        // Generate Certificate
-        const certData = await certificateService.generateCertificateData({
-          verificationRecord,
-          instrument: application.instrument,
-          owner: application.owner,
-          verifier: req.user,
-          category: application.instrument?.category
-        });
+        // ── PAYMENT GATE (feature/razorpay-payment) ────────────────────────
+        // Certificate is NOT generated here anymore.
+        // Frontend must complete Razorpay payment and call POST /api/payments/verify
+        // which will verify the signature and call certificateService.
+        // ──────────────────────────────────────────────────────────────────
 
-        certificate = await db.createCertificate(certData);
-
-        // Generate QR code pointing to live public verification page
-        const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-        qrCodeData = await qrService.generateVerificationQR(certificate.id, baseUrl);
-
-        // Audit Log for Certificate
-        await auditService.log(
-          req,
-          'CERTIFICATE_GENERATED',
-          'CERTIFICATE',
-          certificate.id,
-          null,
-          {
-            instrument_id: application.instrument_id,
-            valid_until: certificate.valid_until,
-            status: certificate.status
-          }
-        );
-
-        // Notify Business Owner
+        // Notify owner that verification passed and payment is required
         await notificationService.notify(
           application.owner_id,
-          'Verification PASSED - Certificate Issued',
-          `Your instrument ${application.instrument?.instrument_type} (${application.instrument?.serial_number}) passed verification. Digital Certificate ${certificate.id} has been generated.`,
+          'Verification PASSED — Payment Required',
+          `Your instrument ${application.instrument?.instrument_type} (${application.instrument?.serial_number}) ` +
+          `passed physical verification. Please complete the verification fee payment to receive your Digital Certificate.`,
           'INFO',
-          'CERTIFICATE',
-          certificate.id
+          'APPLICATION',
+          application.id
         );
+
+        const updatedApp = await db.getApplicationById(id);
+
+        return res.status(201).json({
+          success: true,
+          message: 'Physical verification completed: PASS. Payment required to issue certificate.',
+          verification_record: verificationRecord,
+          payment_required: true,              // ← Frontend uses this to trigger payment
+          application_id: id,
+          application: updatedApp,
+          certificate: null,                   // No certificate yet — pending payment
+          qr_code: null
+        });
+
       } else {
-        // FAIL Workflow:
+        // ── FAIL Workflow: completely unchanged ────────────────────────────
         // No certificate is generated for failed verification!
-        // Notify Business Owner
         await notificationService.notify(
           application.owner_id,
           'Verification FAILED - Action Required',
@@ -170,22 +164,23 @@ export const verificationController = {
           'APPLICATION',
           application.id
         );
+
+        const updatedApp = await db.getApplicationById(id);
+
+        return res.status(201).json({
+          success: true,
+          message: 'Physical verification recorded: FAIL. Owner notified of non-compliance.',
+          verification_record: verificationRecord,
+          payment_required: false,
+          certificate: null,
+          qr_code: null,
+          application: updatedApp
+        });
       }
 
-      const updatedApp = await db.getApplicationById(id);
-
-      return res.status(201).json({
-        success: true,
-        message: result === 'PASS' 
-          ? 'Physical verification completed: PASS. Digital certificate and live QR code generated.'
-          : 'Physical verification recorded: FAIL. Owner notified of non-compliance.',
-        verification_record: verificationRecord,
-        certificate,
-        qr_code: qrCodeData,
-        application: updatedApp
-      });
     } catch (err) {
       next(err);
     }
   }
 };
+
