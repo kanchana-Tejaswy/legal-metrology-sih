@@ -4,24 +4,23 @@ import { ShieldCheck, Scale } from 'lucide-react';
 
 export const GovHeader = () => {
   return (
-    <header className="bg-white border-b border-slate-300 shadow-sm">
+    <header className="bg-white border-b border-slate-200/90 shadow-2xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row justify-between items-center gap-4">
-        {/* Left: Department Emblem Placeholder & Official Hierarchy */}
+        {/* Left: Department Emblem & Official Hierarchy */}
         <Link to="/" className="flex items-center space-x-3.5 group text-left">
-          {/* Circular Emblem Seal Placeholder */}
           <div className="relative flex-shrink-0">
             <img
               src="/emblem.svg"
               alt="Department of Legal Metrology Seal"
-              className="w-16 h-16 object-contain"
+              className="w-14 h-14 sm:w-16 sm:h-16 object-contain group-hover:scale-[1.02] transition-transform duration-200"
             />
           </div>
 
           <div>
-            <div className="text-[11px] uppercase tracking-wider text-slate-600 font-bold">
+            <div className="text-[10px] sm:text-[11px] uppercase tracking-wider text-slate-500 font-bold">
               Government of India
             </div>
-            <div className="text-base sm:text-lg md:text-xl font-bold text-gov-navy leading-tight font-serif">
+            <div className="text-base sm:text-lg md:text-xl font-bold text-gov-navy leading-tight font-serif tracking-tight">
               Department of Legal Metrology
             </div>
             <div className="text-xs sm:text-sm font-semibold text-gov-ashoka">
@@ -34,24 +33,24 @@ export const GovHeader = () => {
         </Link>
 
         {/* Right: National Portal Indicators & Verification Quick Badge */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3 sm:space-x-4">
           <Link
             to="/verify"
-            className="flex items-center space-x-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 px-3.5 py-2 rounded text-xs font-semibold shadow-xs transition"
+            className="flex items-center space-x-2.5 bg-emerald-50/90 hover:bg-emerald-100 text-emerald-950 ring-1 ring-inset ring-emerald-600/30 px-3.5 py-2 rounded-lg text-xs font-semibold shadow-2xs transition btn-tactile"
           >
-            <ShieldCheck size={18} className="text-emerald-700" />
-            <div className="text-left">
-              <div className="font-bold">Verify Certificate</div>
-              <div className="text-[10px] text-emerald-700 font-normal">Live QR & ID Lookup</div>
+            <ShieldCheck size={19} className="text-emerald-700 flex-shrink-0" />
+            <div className="text-left leading-snug">
+              <div className="font-bold text-emerald-900">Verify Certificate</div>
+              <div className="text-[10px] text-emerald-700 font-medium">Live QR & ID Lookup</div>
             </div>
           </Link>
 
-          <div className="hidden lg:flex items-center space-x-2 border-l border-slate-300 pl-4">
-            <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-gov-navy">
-              <Scale size={22} />
+          <div className="hidden lg:flex items-center space-x-2.5 border-l border-slate-200 pl-4">
+            <div className="w-10 h-10 rounded-full bg-slate-100/80 border border-slate-200 flex items-center justify-center text-gov-navy shadow-2xs">
+              <Scale size={20} />
             </div>
-            <div className="text-left">
-              <div className="text-xs font-bold text-slate-800">SIH 26036</div>
+            <div className="text-left leading-tight">
+              <div className="text-xs font-bold text-slate-800 font-mono">SIH 26036</div>
               <div className="text-[10px] text-slate-500">Legal Metrology Portal</div>
             </div>
           </div>

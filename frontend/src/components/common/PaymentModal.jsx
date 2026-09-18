@@ -220,19 +220,18 @@ export const PaymentModal = ({
       title="Verification Fee Payment — Statutory Gate"
       maxWidth="max-w-md"
     >
-      <div className="space-y-5">
-
+      <div className="space-y-4">
         {/* Mode Notice */}
-        <div className="bg-amber-50 border border-amber-300 rounded p-3 text-xs text-amber-900 flex items-start space-x-2">
-          <ShieldCheck size={15} className="flex-shrink-0 mt-0.5 text-amber-700" />
-          <span>
+        <div className="bg-amber-50/80 border border-amber-300/80 rounded-lg p-3 text-xs text-amber-900 flex items-start space-x-2.5">
+          <ShieldCheck size={16} className="flex-shrink-0 mt-0.5 text-amber-700" />
+          <span className="leading-relaxed">
             {isDemo ? (
               <>
-                <strong>SIH DEMO MODE</strong> — Statutory verification fee gate active. Simulated payment with server-side HMAC signature verification.
+                <strong className="font-semibold">SIH DEMO MODE</strong> — Statutory verification fee gate active. Simulated payment with server-side HMAC signature verification.
               </>
             ) : (
               <>
-                <strong>RAZORPAY TEST MODE</strong> — Use Razorpay test card: <code className="bg-amber-100 px-1 rounded font-mono">4111 1111 1111 1111</code>, any CVV.
+                <strong className="font-semibold">RAZORPAY TEST MODE</strong> — Use Razorpay test card: <code className="bg-amber-100/90 px-1 py-0.5 rounded font-mono text-[11px]">4111 1111 1111 1111</code>, any CVV.
               </>
             )}
           </span>
@@ -240,16 +239,16 @@ export const PaymentModal = ({
 
         {/* Loading order */}
         {step === 'loading' && (
-          <div className="flex flex-col items-center py-6 space-y-3">
-            <Loader2 size={30} className="text-gov-navy animate-spin" />
-            <p className="text-xs text-slate-500">Creating payment order...</p>
+          <div className="flex flex-col items-center py-8 space-y-3">
+            <Loader2 size={32} className="text-gov-navy animate-spin" />
+            <p className="text-xs text-slate-500 font-medium">Preparing official statutory payment order...</p>
           </div>
         )}
 
         {/* Ready to pay */}
         {(step === 'ready' || step === 'processing') && orderInfo && (
           <div className="space-y-4">
-            <div className="bg-slate-50 border border-slate-200 rounded p-4 space-y-2.5">
+            <div className="bg-slate-50 border border-slate-200/90 rounded-lg p-4 space-y-2.5 shadow-2xs">
               <div className="flex justify-between text-xs text-slate-600">
                 <span>Instrument</span>
                 <span className="font-medium text-slate-800">
@@ -258,17 +257,17 @@ export const PaymentModal = ({
               </div>
               <div className="flex justify-between text-xs text-slate-600">
                 <span>Serial No.</span>
-                <span className="font-mono font-medium text-slate-800">
+                <span className="font-mono font-medium text-slate-800 tabular-nums">
                   {orderInfo.instrument_info?.serial || '—'}
                 </span>
               </div>
               <div className="flex justify-between text-xs text-slate-600">
                 <span>Order ID</span>
-                <span className="font-mono text-[10px] text-slate-700">{orderInfo.order.id}</span>
+                <span className="font-mono text-[11px] text-slate-700 tabular-nums">{orderInfo.order.id}</span>
               </div>
-              <div className="border-t border-slate-200 pt-2 flex justify-between items-center">
-                <span className="text-xs font-bold text-slate-700">Verification Fee</span>
-                <span className="text-lg font-bold text-gov-navy flex items-center">
+              <div className="border-t border-slate-200 pt-2.5 flex justify-between items-center">
+                <span className="text-xs font-bold text-slate-700">Verification Fee (Rule 14)</span>
+                <span className="text-lg font-bold text-gov-navy flex items-center tabular-nums font-serif">
                   <IndianRupee size={16} className="mr-0.5" />
                   {amountRupees}
                 </span>
@@ -276,8 +275,8 @@ export const PaymentModal = ({
             </div>
 
             {errorMsg && (
-              <div className="bg-red-50 border border-red-300 rounded p-3 flex items-start space-x-2 text-xs text-red-800">
-                <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start space-x-2 text-xs text-red-800">
+                <AlertCircle size={14} className="flex-shrink-0 mt-0.5 text-red-600" />
                 <span>{errorMsg}</span>
               </div>
             )}
@@ -287,7 +286,7 @@ export const PaymentModal = ({
               type="button"
               onClick={isDemo ? handleDemoPay : handleRazorpayPay}
               disabled={step === 'processing'}
-              className="w-full bg-gov-navy hover:bg-gov-blue text-white py-3 rounded font-bold text-sm flex items-center justify-center space-x-2 transition disabled:opacity-60 shadow-sm"
+              className="w-full bg-gov-navy hover:bg-gov-blue text-white py-2.5 sm:py-3 rounded-md font-bold text-xs sm:text-sm flex items-center justify-center space-x-2 btn-tactile shadow-sm disabled:opacity-60"
               id="pay-confirm-btn"
             >
               {step === 'processing' ? (
@@ -302,7 +301,7 @@ export const PaymentModal = ({
               <button
                 type="button"
                 onClick={handleDemoSimulateFailure}
-                className="w-full border border-red-200 text-red-700 hover:bg-red-50 py-2 rounded text-xs font-medium transition flex items-center justify-center space-x-1.5"
+                className="w-full border border-red-200 text-red-700 hover:bg-red-50/80 py-2 rounded-md text-xs font-medium transition btn-tactile flex items-center justify-center space-x-1.5"
               >
                 <XCircle size={13} />
                 <span>Simulate Payment Failure (Test Negative Case)</span>
@@ -314,7 +313,7 @@ export const PaymentModal = ({
               type="button"
               onClick={onClose}
               disabled={step === 'processing'}
-              className="w-full border border-slate-300 text-slate-600 hover:bg-slate-50 py-2 rounded text-xs font-medium transition disabled:opacity-60"
+              className="w-full border border-slate-200 text-slate-600 hover:bg-slate-50 py-2 rounded-md text-xs font-medium transition btn-tactile disabled:opacity-60"
             >
               Cancel — Do Not Issue Certificate
             </button>
