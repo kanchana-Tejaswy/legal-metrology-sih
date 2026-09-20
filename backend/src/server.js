@@ -13,7 +13,6 @@ import certificateRoutes from './routes/certificateRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import publicRoutes from './routes/publicRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
-import paymentRoutes from './routes/paymentRoutes.js';
 
 import { errorHandler } from './middleware/errorHandler.js';
 import { notificationService } from './services/notificationService.js';
@@ -62,7 +61,6 @@ app.use('/api/certificates', certificateRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/payments', paymentRoutes);
 
 // Central error handler
 app.use(errorHandler);

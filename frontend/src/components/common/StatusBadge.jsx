@@ -22,9 +22,9 @@ export const StatusBadge = ({ status, className = '' }) => {
     case 'PASS':
       return (
         <span
-          className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-tight bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/25 ${className}`}
+          className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-300 ${className}`}
         >
-          <CheckCircle2 size={12} className="text-emerald-600 flex-shrink-0" />
+          <CheckCircle2 size={12} className="text-emerald-700" />
           <span>{normalized}</span>
         </span>
       );
@@ -36,9 +36,9 @@ export const StatusBadge = ({ status, className = '' }) => {
     case 'SCHEDULED':
       return (
         <span
-          className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-tight bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/25 ${className}`}
+          className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300 ${className}`}
         >
-          <AlertTriangle size={12} className="text-amber-600 flex-shrink-0" />
+          <AlertTriangle size={12} className="text-amber-700" />
           <span>{normalized.replace('_', ' ')}</span>
         </span>
       );
@@ -50,9 +50,9 @@ export const StatusBadge = ({ status, className = '' }) => {
     case 'UNDER VERIFICATION':
       return (
         <span
-          className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-tight bg-sky-50 text-sky-800 ring-1 ring-inset ring-sky-600/25 ${className}`}
+          className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-900 border border-blue-300 ${className}`}
         >
-          <Clock size={12} className="text-sky-600 flex-shrink-0" />
+          <Clock size={12} className="text-blue-700" />
           <span>{normalized.replace('_', ' ')}</span>
         </span>
       );
@@ -60,9 +60,9 @@ export const StatusBadge = ({ status, className = '' }) => {
     case 'EXPIRED':
       return (
         <span
-          className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-tight bg-orange-50 text-orange-800 ring-1 ring-inset ring-orange-600/25 ${className}`}
+          className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-orange-100 text-orange-900 border border-orange-300 ${className}`}
         >
-          <Clock size={12} className="text-orange-600 flex-shrink-0" />
+          <Clock size={12} className="text-orange-700" />
           <span>EXPIRED</span>
         </span>
       );
@@ -75,9 +75,9 @@ export const StatusBadge = ({ status, className = '' }) => {
     case 'INVALID':
       return (
         <span
-          className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold tracking-tight bg-rose-50 text-rose-700 ring-1 ring-inset ring-rose-600/25 ${className}`}
+          className={`inline-flex items-center space-x-1 px-2.5 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-900 border border-red-300 ${className}`}
         >
-          <XCircle size={12} className="text-rose-600 flex-shrink-0" />
+          <XCircle size={12} className="text-red-700" />
           <span>{normalized}</span>
         </span>
       );
@@ -85,7 +85,7 @@ export const StatusBadge = ({ status, className = '' }) => {
     default:
       return (
         <span
-          className={`inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium tracking-tight bg-slate-100 text-slate-700 ring-1 ring-inset ring-slate-400/20 ${className}`}
+          className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800 border border-slate-300 ${className}`}
         >
           <span>{status}</span>
         </span>

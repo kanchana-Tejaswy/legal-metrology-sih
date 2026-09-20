@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import {
   ShieldCheck,
   FileCheck2,
@@ -15,22 +15,20 @@ import {
 } from 'lucide-react';
 
 export const HomePage = () => {
-  const navigate = useNavigate();
-
   return (
     <div className="space-y-8">
       {/* Official Hero Section */}
-      <div className="bg-gradient-to-r from-gov-navy via-[#0A2540] to-gov-blue text-white py-12 sm:py-14 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 shadow-md">
+      <div className="bg-gradient-to-r from-gov-navy via-[#0A2540] to-gov-blue text-white py-12 px-4 sm:px-6 lg:px-8 border-b-4 border-amber-500 shadow-md">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex items-center space-x-2 bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs px-3 py-1 rounded-full">
-              <Scale size={13} />
+            <div className="inline-flex items-center space-x-2 bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs px-3 py-1 rounded">
+              <Scale size={14} />
               <span className="font-semibold tracking-wide">Statutory Verification System • Legal Metrology Act, 2009</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold font-serif leading-tight">
               Online Verification & Certification System
-              <span className="block text-slate-200 text-base sm:text-xl font-sans font-normal mt-1.5">
+              <span className="block text-slate-200 text-lg sm:text-xl font-sans font-normal mt-1">
                 for Commercial Weighing and Measuring Instruments
               </span>
             </h1>
@@ -44,23 +42,23 @@ export const HomePage = () => {
             <div className="pt-2 flex flex-wrap gap-3">
               <Link
                 to="/register"
-                className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-lg shadow-sm flex items-center space-x-2 transition btn-tactile"
+                className="bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded shadow flex items-center space-x-2 transition"
               >
                 <span>Apply for Verification</span>
-                <ArrowRight size={15} />
+                <ArrowRight size={16} />
               </Link>
 
               <Link
                 to="/verify"
-                className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded-lg shadow-sm flex items-center space-x-2 transition border border-emerald-600/80 btn-tactile"
+                className="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs sm:text-sm px-5 py-2.5 rounded shadow flex items-center space-x-2 transition border border-emerald-600"
               >
-                <QrCode size={15} />
+                <QrCode size={16} />
                 <span>Verify Digital Certificate</span>
               </Link>
 
               <Link
                 to="/login"
-                className="bg-slate-800/90 hover:bg-slate-800 text-slate-200 border border-slate-600/70 text-xs sm:text-sm px-4 py-2.5 rounded-lg transition btn-tactile"
+                className="bg-slate-800/80 hover:bg-slate-800 text-slate-200 border border-slate-600 text-xs sm:text-sm px-4 py-2.5 rounded transition"
               >
                 Officer / Lab Login
               </Link>
@@ -69,24 +67,24 @@ export const HomePage = () => {
 
           {/* Quick Verification Lookup Card */}
           <div className="lg:col-span-4">
-            <div className="bg-white text-slate-800 rounded-xl border border-slate-200/90 shadow-elevated p-5 sm:p-6 ring-1 ring-slate-900/5">
-              <div className="flex items-center space-x-2 text-gov-navy font-bold text-sm border-b border-slate-100 pb-3 mb-3">
+            <div className="bg-white text-slate-800 rounded border border-slate-200 shadow-xl p-5">
+              <div className="flex items-center space-x-2 text-gov-navy font-bold text-sm border-b pb-3 mb-3">
                 <ShieldCheck size={20} className="text-emerald-700" />
                 <span>Instant Certificate Verification</span>
               </div>
-              <p className="text-xs text-slate-600 mb-4 leading-relaxed">
+              <p className="text-xs text-slate-600 mb-4 leading-normal">
                 Verify the live validity, stamping record, and authenticity of any weighing instrument using its official certificate number.
               </p>
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   const id = e.target.certId.value.trim();
-                  if (id) navigate(`/verify/${encodeURIComponent(id)}`);
+                  if (id) window.location.href = `/verify/${encodeURIComponent(id)}`;
                 }}
                 className="space-y-3"
               >
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                     Certificate Number
                   </label>
                   <input
@@ -94,13 +92,13 @@ export const HomePage = () => {
                     type="text"
                     defaultValue="CERT-2026-000101"
                     placeholder="e.g. CERT-2026-000101"
-                    className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md font-mono tabular-nums focus:ring-1 focus:ring-gov-navy focus:border-gov-navy uppercase"
+                    className="w-full px-3 py-2 text-xs border border-slate-300 rounded font-mono focus:ring-1 focus:ring-gov-navy focus:border-gov-navy"
                     required
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full bg-gov-navy hover:bg-gov-blue text-white py-2.5 px-3 rounded-md text-xs font-semibold flex items-center justify-center space-x-1.5 transition btn-tactile shadow-2xs"
+                  className="w-full bg-gov-navy hover:bg-gov-blue text-white py-2 px-3 rounded text-xs font-semibold flex items-center justify-center space-x-1.5 transition"
                 >
                   <ShieldCheck size={14} />
                   <span>Verify Status Live</span>
@@ -116,7 +114,7 @@ export const HomePage = () => {
 
       {/* Statutory Disclaimer Notice */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-blue-50/80 border-l-4 border-gov-navy p-4 rounded-lg shadow-2xs text-xs text-slate-800 flex items-start space-x-3">
+        <div className="bg-blue-50 border-l-4 border-gov-navy p-4 rounded shadow-xs text-xs text-slate-800 flex items-start space-x-3">
           <AlertCircle size={20} className="text-gov-navy flex-shrink-0 mt-0.5" />
           <div className="leading-relaxed">
             <span className="font-bold text-gov-navy">Statutory Principle: </span>
@@ -131,7 +129,7 @@ export const HomePage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-8">
           <div className="text-xs uppercase tracking-wider text-amber-700 font-bold">Standard Operating Procedure</div>
-          <h2 className="text-xl sm:text-2xl font-bold font-serif text-gov-navy tracking-tight mt-0.5">
+          <h2 className="text-xl sm:text-2xl font-bold font-serif text-gov-navy">
             6-Stage Verification & Certification Lifecycle
           </h2>
           <p className="text-xs text-slate-600 mt-1">
@@ -182,19 +180,17 @@ export const HomePage = () => {
             return (
               <div
                 key={idx}
-                className="bg-white border border-slate-200/90 p-4 rounded-xl text-left relative flex flex-col justify-between hover:border-gov-navy/70 transition shadow-card hover:shadow-card-hover"
+                className="bg-white border border-slate-300 p-4 rounded text-left relative flex flex-col justify-between hover:border-gov-navy transition shadow-xs"
               >
                 <div>
-                  <div className="flex justify-between items-center mb-2.5">
-                    <span className="text-[10px] font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200/80 tabular-nums">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-mono font-bold text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
                       STAGE {item.step}
                     </span>
-                    <div className="w-7 h-7 rounded-md bg-slate-50 flex items-center justify-center text-gov-navy">
-                      <Icon size={16} />
-                    </div>
+                    <Icon size={18} className="text-gov-navy" />
                   </div>
-                  <h3 className="font-bold text-xs text-gov-navy mb-1.5 leading-snug">{item.title}</h3>
-                  <p className="text-[11px] text-slate-600 leading-relaxed">{item.desc}</p>
+                  <h3 className="font-bold text-xs text-gov-navy mb-1">{item.title}</h3>
+                  <p className="text-[11px] text-slate-600 leading-snug">{item.desc}</p>
                 </div>
               </div>
             );
@@ -203,10 +199,10 @@ export const HomePage = () => {
       </div>
 
       {/* Key Portal Features / Stakeholder Breakdown */}
-      <div className="bg-slate-100/70 py-10 border-y border-slate-200/90">
+      <div className="bg-slate-100 py-10 border-y border-slate-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold font-serif text-gov-navy tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-bold font-serif text-gov-navy">
               Stakeholder Portals & Authorization Channels
             </h2>
             <p className="text-xs text-slate-600 mt-1">
@@ -216,7 +212,7 @@ export const HomePage = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Instrument Owner */}
-            <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-card hover:shadow-card-hover transition space-y-3">
+            <div className="bg-white p-5 rounded border border-slate-300 shadow-xs space-y-3">
               <div className="flex items-center space-x-2 text-gov-navy font-bold text-sm">
                 <Building2 size={18} className="text-gov-ashoka" />
                 <span>Instrument Owner</span>

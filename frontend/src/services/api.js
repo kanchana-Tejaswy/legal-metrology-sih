@@ -85,11 +85,5 @@ export const api = {
 
   // Notifications
   getNotifications: () => request('/notifications'),
-  markNotificationRead: (id) => request(`/notifications/${id}/read`, { method: 'PUT' }),
-
-  // Payment (feature/razorpay-payment)
-  createPaymentOrder: (data) => request('/payments/create-order', { method: 'POST', body: JSON.stringify(data) }),
-  verifyPayment: (data) => request('/payments/verify', { method: 'POST', body: JSON.stringify(data) }),
-  getPaymentStatus: (applicationId) => request(`/payments/${applicationId}`)
-
+  markNotificationRead: (id) => request(`/notifications/${id}/read`, { method: 'PUT' })
 };
