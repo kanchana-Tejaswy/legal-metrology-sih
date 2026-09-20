@@ -35,8 +35,18 @@ export const NotificationProvider = ({ children }) => {
         if (!document.hidden) {
           fetchNotifications();
         }
-      }, 45000);
-      return () => clearInterval(interval);
+      }, 15000); // Poll every 15 seconds for near-real-time delivery
+
+      // Also refresh immediately when user returns to the tab
+      const handleVisibilityChange = () => {
+        if (!document.hidden) fetchNotifications();
+      };
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+
+      return () => {
+        clearInterval(interval);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
+      };
     } else {
       setNotifications([]);
       setUnreadCount(0);
@@ -85,6 +95,8 @@ export const NotificationProvider = ({ children }) => {
                 ? 'bg-emerald-900 text-white border-emerald-700'
                 : toast.type === 'error'
                 ? 'bg-red-900 text-white border-red-700'
+                : toast.type === 'warning'
+                ? 'bg-amber-800 text-white border-amber-600'
                 : 'bg-gov-navy text-white border-gov-blue'
             }`}
           >

@@ -1,31 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { DataTable } from '../../components/common/DataTable';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { Modal } from '../../components/common/Modal';
-import { FileCheck2, Calendar, PlusCircle, UserCheck, Eye } from 'lucide-react';
+import { FileCheck2, Calendar, PlusCircle, UserCheck, Eye, RefreshCw, Radio } from 'lucide-react';
 
 export const MyApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [selectedApp, setSelectedApp] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const res = await api.getApplications();
-        if (res.success) {
-          setApplications(res.applications);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const loadData = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    else setIsRefreshing(true);
+    try {
+      const res = await api.getApplications();
+      if (res.success && res.applications) {
+        setApplications(res.applications);
+        setLastUpdated(new Date());
       }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    loadData();
+    // Real-time polling every 15 seconds
+    const interval = setInterval(() => {
+      if (!document.hidden) loadData(true);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [loadData]);
 
   const columns = [
     {
@@ -119,13 +131,43 @@ export const MyApplicationsPage = () => {
           </p>
         </div>
 
-        <Link
-          to="/owner/apply"
-          className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition"
-        >
-          <PlusCircle size={15} />
-          <span>New Application</span>
-        </Link>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => loadData(true)}
+            disabled={isRefreshing}
+            className="p-1.5 text-xs text-slate-600 hover:text-gov-navy border border-slate-300 rounded hover:bg-slate-50 flex items-center space-x-1 transition disabled:opacity-50"
+            title="Refresh applications list"
+          >
+            <RefreshCw size={13} className={isRefreshing ? 'animate-spin text-gov-navy' : ''} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+
+          <Link
+            to="/owner/apply"
+            className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition"
+          >
+            <PlusCircle size={15} />
+            <span>New Application</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Live Sync Status Bar */}
+      <div className="flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 px-3 py-1.5 rounded border border-slate-200">
+        <div className="flex items-center space-x-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="font-semibold text-slate-700">Live Auto-Sync Active</span>
+          <span className="text-slate-400">•</span>
+          <span>Updates every 15s</span>
+        </div>
+        <div>
+          {lastUpdated && (
+            <span>Last synced: {lastUpdated.toLocaleTimeString()}</span>
+          )}
+        </div>
       </div>
 
       <DataTable

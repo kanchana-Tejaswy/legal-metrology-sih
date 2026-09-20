@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -12,7 +12,9 @@ import {
   ArrowRight,
   ShieldCheck,
   Building2,
-  Calendar
+  Calendar,
+  RefreshCw,
+  Radio
 } from 'lucide-react';
 import { StatusBadge } from '../../components/common/StatusBadge';
 
@@ -22,47 +24,84 @@ export const OwnerDashboard = () => {
   const [instruments, setInstruments] = useState([]);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [instRes, appRes] = await Promise.all([
-          api.getInstruments(),
-          api.getApplications()
-        ]);
+  const loadData = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    else setIsRefreshing(true);
+    try {
+      const [instRes, appRes] = await Promise.all([
+        api.getInstruments(),
+        api.getApplications()
+      ]);
 
-        const instList = instRes.instruments || [];
-        const appList = appRes.applications || [];
+      const instList = instRes.instruments || [];
+      const appList = appRes.applications || [];
 
-        setInstruments(instList);
-        setApplications(appList);
+      setInstruments(instList);
+      setApplications(appList);
+      setLastUpdated(new Date());
 
-        // Compute stats
-        const validCerts = instList.filter(i => i.current_status === 'VALID').length;
-        const expiringSoon = instList.filter(i => i.current_status === 'EXPIRING_SOON').length;
-        const expired = instList.filter(i => i.current_status === 'EXPIRED').length;
-        const pendingApps = appList.filter(a => ['SUBMITTED', 'ASSIGNED', 'SCHEDULED', 'UNDER_VERIFICATION'].includes(a.status)).length;
+      // Compute stats
+      const validCerts = instList.filter(i => i.current_status === 'VALID').length;
+      const expiringSoon = instList.filter(i => i.current_status === 'EXPIRING_SOON').length;
+      const expired = instList.filter(i => i.current_status === 'EXPIRED').length;
+      const pendingApps = appList.filter(a => ['SUBMITTED', 'ASSIGNED', 'SCHEDULED', 'UNDER_VERIFICATION'].includes(a.status)).length;
 
-        setStats({
-          totalInstruments: instList.length,
-          pendingApplications: pendingApps,
-          validCertificates: validCerts,
-          expiringSoon,
-          expiredCertificates: expired
-        });
-      } catch (err) {
-        console.error('Error loading dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
+      setStats({
+        totalInstruments: instList.length,
+        pendingApplications: pendingApps,
+        validCertificates: validCerts,
+        expiringSoon,
+        expiredCertificates: expired
+      });
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
     }
-    loadData();
   }, []);
 
+  useEffect(() => {
+    loadData();
+    // Real-time: refresh every 25 seconds
+    const interval = setInterval(() => {
+      if (!document.hidden) loadData(true);
+    }, 25000);
+    return () => clearInterval(interval);
+  }, [loadData]);
+
   const businessName = user?.business_name || user?.stakeholder?.business_name || user?.full_name || 'Enterprise User';
+  const statusLabel = user?.status === 'APPROVED' ? 'APPROVED STAKEHOLDER' : user?.status === 'PENDING' ? 'PENDING APPROVAL' : user?.status || 'ACTIVE';
+  const statusColor = user?.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-800' : user?.status === 'PENDING' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700';
 
   return (
     <div className="space-y-6">
+      {/* Live Sync Bar */}
+      <div className="bg-slate-900 text-white rounded p-3 px-4 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center space-x-2.5">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <Radio size={13} className="text-emerald-400" />
+          <span className="font-semibold tracking-wide">Live Dashboard</span>
+          <span className="text-slate-400 text-[11px]">
+            {lastUpdated ? `Updated: ${lastUpdated.toLocaleTimeString()}` : 'Loading...'}
+          </span>
+        </div>
+        <button
+          onClick={() => loadData(true)}
+          disabled={isRefreshing}
+          className="flex items-center space-x-1 bg-gov-blue hover:bg-slate-700 text-white px-2.5 py-1 rounded transition border border-slate-600 disabled:opacity-50"
+        >
+          <RefreshCw size={12} className={isRefreshing ? 'animate-spin text-amber-300' : ''} />
+          <span>Refresh</span>
+        </button>
+      </div>
+
       {/* Welcome Banner */}
       <div className="bg-white border border-slate-300 rounded shadow-xs p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -71,8 +110,8 @@ export const OwnerDashboard = () => {
             Welcome, {businessName}
           </h1>
           <div className="text-xs text-slate-600 flex items-center space-x-2 mt-1">
-            <span className="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold text-[10px]">
-              APPROVED STAKEHOLDER
+            <span className={`${statusColor} px-2 py-0.5 rounded font-semibold text-[10px]`}>
+              {statusLabel}
             </span>
             <span>•</span>
             <span>Establishment Registration Active</span>

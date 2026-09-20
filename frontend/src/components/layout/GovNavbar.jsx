@@ -178,6 +178,15 @@ export const GovNavbar = () => {
                           <LayoutDashboard size={14} />
                           <span>Official Dashboard</span>
                         </Link>
+                        {role === 'ADMIN' && (
+                          <Link
+                            to="/admin/officers"
+                            className="flex items-center space-x-2 px-4 py-2 hover:bg-slate-100 text-slate-700"
+                          >
+                            <ShieldCheck size={14} className="text-gov-ashoka" />
+                            <span>Officers Directory</span>
+                          </Link>
+                        )}
                       </div>
 
                       <div className="py-1 text-xs">

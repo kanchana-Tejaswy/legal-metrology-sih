@@ -1,36 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { api } from '../../services/api';
 import { DataTable } from '../../components/common/DataTable';
 import { StatusBadge } from '../../components/common/StatusBadge';
 import { Modal } from '../../components/common/Modal';
-import { Users, CheckCircle2, XCircle, FileText, AlertCircle, Building2, Phone, Mail } from 'lucide-react';
+import { Users, CheckCircle2, XCircle, FileText, AlertCircle, Building2, Phone, Mail, RefreshCw, Radio } from 'lucide-react';
 
 export const AdminStakeholdersPage = () => {
   const [stakeholders, setStakeholders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
   const [selectedStakeholder, setSelectedStakeholder] = useState(null);
   const [actionType, setActionType] = useState(null); // 'APPROVED' or 'REJECTED'
   const [reviewNotes, setReviewNotes] = useState('');
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchStakeholders = async () => {
+  const fetchStakeholders = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
+      else setIsRefreshing(true);
       const res = await api.getStakeholders();
       if (res.success) {
         setStakeholders(res.stakeholders);
+        setLastUpdated(new Date());
       }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+      setIsRefreshing(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchStakeholders();
-  }, []);
+    // Real-time auto polling every 15 seconds
+    const interval = setInterval(() => {
+      if (!document.hidden) fetchStakeholders(true);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [fetchStakeholders]);
 
   const handleOpenAction = (stakeholder, type) => {
     setSelectedStakeholder(stakeholder);
@@ -153,13 +163,43 @@ export const AdminStakeholdersPage = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="border-b border-slate-300 pb-4">
-        <h1 className="text-xl sm:text-2xl font-bold font-serif text-gov-navy">
-          Stakeholder Verification & Approvals Desk
-        </h1>
-        <p className="text-xs text-slate-600 mt-0.5">
-          Review business credentials, trade licenses, and identity documents before granting instrument owners access to the statutory portal.
-        </p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-300 pb-4">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold font-serif text-gov-navy">
+            Stakeholder Verification & Approvals Desk
+          </h1>
+          <p className="text-xs text-slate-600 mt-0.5">
+            Review business credentials, trade licenses, and identity documents before granting instrument owners access to the statutory portal.
+          </p>
+        </div>
+
+        <button
+          onClick={() => fetchStakeholders(true)}
+          disabled={isRefreshing}
+          className="p-1.5 text-xs text-slate-600 hover:text-gov-navy border border-slate-300 rounded hover:bg-slate-50 flex items-center space-x-1 transition disabled:opacity-50"
+          title="Refresh stakeholders list"
+        >
+          <RefreshCw size={13} className={isRefreshing ? 'animate-spin text-gov-navy' : ''} />
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      {/* Live Sync Status Bar */}
+      <div className="flex items-center justify-between text-[11px] text-slate-500 bg-slate-50 px-3 py-1.5 rounded border border-slate-200">
+        <div className="flex items-center space-x-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span className="font-semibold text-slate-700">Live Auto-Sync Active</span>
+          <span className="text-slate-400">•</span>
+          <span>Updates every 15s</span>
+        </div>
+        <div>
+          {lastUpdated && (
+            <span>Last synced: {lastUpdated.toLocaleTimeString()}</span>
+          )}
+        </div>
       </div>
 
       <DataTable

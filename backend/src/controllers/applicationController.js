@@ -63,7 +63,8 @@ export const applicationController = {
         preferred_date,
         preferred_time,
         remarks,
-        documents
+        documents,
+        preferred_office_id
       } = req.body;
 
       if (!instrument_id || !preferred_date) {
@@ -89,25 +90,44 @@ export const applicationController = {
         preferred_date,
         preferred_time: preferred_time || '10:00 AM',
         remarks,
+        preferred_office_id,
         documents: documents || []
       });
 
       await auditService.log(
         req,
-        'APPLICATION_CREATED',
+        'APPLICATION_DIRECT_ALLOTTED',
         'APPLICATION',
         application.id,
         null,
-        { instrument_id, application_type, status: application.status }
+        {
+          instrument_id,
+          application_type,
+          status: application.status,
+          assigned_to_role: application.assignment?.verifier_type,
+          assigned_to_id: application.assignment?.verifier_id
+        }
       );
+
+      // Notify the directly assigned LMO / GATC officer immediately
+      if (application.assignment?.verifier_id) {
+        await notificationService.notify(
+          application.assignment.verifier_id,
+          'Direct Verification Allotment',
+          `Application ${application.id} for ${instrument.instrument_type} (${instrument.serial_number}) has been directly allotted to your inspection queue.`,
+          'INFO',
+          'APPLICATION',
+          application.id
+        );
+      }
 
       // Notify Admins
       const admins = await db.getAllUsers('ADMIN');
       for (const admin of admins) {
         await notificationService.notify(
           admin.id,
-          'New Verification Application',
-          `Application ${application.id} submitted for ${instrument.instrument_type} by ${req.user.full_name}.`,
+          'New Verification Application (Auto-Allotted)',
+          `Application ${application.id} for ${instrument.instrument_type} by ${req.user.full_name} was auto-routed to ${application.assignment?.verifier_type || 'Inspector'}.`,
           'INFO',
           'APPLICATION',
           application.id
@@ -116,7 +136,7 @@ export const applicationController = {
 
       return res.status(201).json({
         success: true,
-        message: 'Verification application submitted successfully.',
+        message: `Verification application submitted and automatically allotted to ${application.assignment?.verifier_type === 'GATC' ? 'Government Approved Test Centre' : 'Legal Metrology Officer'}.`,
         application
       });
     } catch (err) {

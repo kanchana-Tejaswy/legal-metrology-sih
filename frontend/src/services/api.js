@@ -73,14 +73,18 @@ export const api = {
   getCertificateById: (id) => request(`/certificates/${id}`),
   revokeCertificate: (id, data) => request(`/certificates/${id}/revoke`, { method: 'POST', body: JSON.stringify(data) }),
 
-  // Public QR Live Verification (No Auth)
+  // Public QR Live Verification & Master Data (No Auth)
   verifyCertificatePublic: (certificateId) => request(`/public/verify/${encodeURIComponent(certificateId)}`),
+  getNearbyOffices: (params = '') => request(`/public/offices${params ? `?${params}` : ''}`),
 
   // Admin
   getDashboardStats: () => request('/admin/stats'),
   getStakeholders: (params = '') => request(`/admin/stakeholders${params ? `?${params}` : ''}`),
   updateStakeholderStatus: (userId, data) => request(`/admin/stakeholders/${userId}/status`, { method: 'PUT', body: JSON.stringify(data) }),
   getOfficers: () => request('/admin/officers'),
+  createOfficer: (data) => request('/admin/officers', { method: 'POST', body: JSON.stringify(data) }),
+  autoAllocateApplications: () => request('/admin/auto-allocate', { method: 'POST' }),
+  triggerExpiryScan: () => request('/admin/scan-expiries', { method: 'POST' }),
   getAuditLogs: (params = '') => request(`/admin/audit-logs${params ? `?${params}` : ''}`),
 
   // Notifications

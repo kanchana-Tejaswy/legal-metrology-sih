@@ -14,9 +14,12 @@ import {
   Printer,
   FileCheck,
   Lock,
-  Clock
+  Clock,
+  Camera,
+  QrCode
 } from 'lucide-react';
 import { StatusBadge } from '../../components/common/StatusBadge';
+import { QRCameraScannerModal } from '../../components/verification/QRCameraScannerModal';
 
 export const PublicVerifyPage = () => {
   const { certificateId } = useParams();
@@ -26,6 +29,7 @@ export const PublicVerifyPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [scannerOpen, setScannerOpen] = useState(false);
 
   const fetchVerification = async (certId) => {
     if (!certId) return;
@@ -55,6 +59,13 @@ export const PublicVerifyPage = () => {
     }
   }, [certificateId]);
 
+  const handleScanSuccess = (scannedCertId) => {
+    if (scannedCertId) {
+      setInputCertId(scannedCertId);
+      navigate(`/verify/${encodeURIComponent(scannedCertId)}`);
+    }
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     if (inputCertId.trim()) {
@@ -83,7 +94,7 @@ export const PublicVerifyPage = () => {
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 items-end">
           <div className="flex-1 w-full">
             <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-              Enter Certificate ID / Scan QR Code
+              Enter Certificate ID or Scan QR Code
             </label>
             <div className="relative">
               <input
@@ -97,14 +108,31 @@ export const PublicVerifyPage = () => {
               <Search size={16} className="absolute left-3 top-2.5 sm:top-3 text-slate-400" />
             </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setScannerOpen(true)}
+            className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 sm:py-2.5 rounded text-xs sm:text-sm font-semibold flex items-center justify-center space-x-1.5 transition shadow-xs"
+          >
+            <Camera size={16} />
+            <span>Scan with Camera</span>
+          </button>
+
           <button
             type="submit"
             disabled={loading}
             className="w-full sm:w-auto bg-gov-navy hover:bg-gov-blue text-white px-6 py-2 sm:py-2.5 rounded text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition disabled:opacity-50"
           >
-            {loading ? <span>Querying Registry...</span> : <span>Verify Live Status</span>}
+            {loading ? <span>Querying Registry...</span> : <span>Verify by Code</span>}
           </button>
         </form>
+
+        {/* Camera Scanner Modal Component */}
+        <QRCameraScannerModal
+          isOpen={scannerOpen}
+          onClose={() => setScannerOpen(false)}
+          onScanSuccess={handleScanSuccess}
+        />
 
         {/* Demo Quick Lookup Buttons */}
         <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">

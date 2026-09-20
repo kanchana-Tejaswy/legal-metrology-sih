@@ -108,5 +108,26 @@ export const publicController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  /**
+   * GET /api/public/offices
+   * Returns list of suggested nearby LMO offices and GATC test centres based on location / category
+   */
+  async getNearbyOffices(req, res, next) {
+    try {
+      const { state, district, pincode, lat, lng, category_code } = req.query;
+      const offices = await db.getNearbyOffices({
+        state,
+        district,
+        pincode,
+        lat: lat ? parseFloat(lat) : null,
+        lng: lng ? parseFloat(lng) : null,
+        category_code
+      });
+      return res.json({ success: true, offices });
+    } catch (err) {
+      next(err);
+    }
   }
 };

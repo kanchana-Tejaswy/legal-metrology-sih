@@ -10,6 +10,9 @@ router.get('/stats', adminController.getDashboardStats);
 router.get('/stakeholders', adminController.listStakeholders);
 router.put('/stakeholders/:id/status', adminController.updateStakeholderStatus);
 router.get('/officers', adminController.listOfficers);
+router.post('/officers', adminController.createOfficer); // Strictly LMO and GATC only
+router.post('/auto-allocate', adminController.autoAllocateApplications);
+router.post('/scan-expiries', adminController.triggerExpiryScan);
 router.get('/audit-logs', adminController.getAuditLogs);
 
 export default router;

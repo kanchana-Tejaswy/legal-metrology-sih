@@ -112,5 +112,97 @@ export const adminController = {
     } catch (err) {
       next(err);
     }
+  },
+
+  /**
+   * Admin-Only: Provision LMO or GATC Officer (Strict Role Enforcement)
+   */
+  async createOfficer(req, res, next) {
+    try {
+      const { role } = req.body;
+
+      // Strict enforcement: Only LMO and GATC can be provisioned by admin
+      if (!['LMO', 'GATC'].includes(role)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Admin authorization is strictly restricted to provisioning LMO (Legal Metrology Officers) and GATC (Testing Centres) only.'
+        });
+      }
+
+      const result = await db.createOfficer(req.body, req.user.id);
+
+      // Audit Log
+      await auditService.log(
+        req,
+        role === 'LMO' ? 'LMO_OFFICER_PROVISIONED' : 'GATC_CENTRE_PROVISIONED',
+        'USER',
+        result.user.id,
+        null,
+        { role, email: result.user.email, full_name: result.user.full_name }
+      );
+
+      return res.status(201).json({
+        success: true,
+        message: `${role === 'LMO' ? 'Legal Metrology Officer' : 'GATC Testing Centre'} successfully provisioned and authorized.`,
+        data: result
+      });
+    } catch (err) {
+      if (err.status) {
+        return res.status(err.status).json({ success: false, message: err.message });
+      }
+      next(err);
+    }
+  },
+
+  /**
+   * Automated Operations: Smart Auto-Allocation
+   */
+  async autoAllocateApplications(req, res, next) {
+    try {
+      const result = await db.autoAllocatePendingApplications();
+
+      await auditService.log(
+        req,
+        'AUTOMATED_BATCH_ALLOCATION_RUN',
+        'SYSTEM',
+        'BATCH',
+        null,
+        { allocated_count: result.count }
+      );
+
+      return res.json({
+        success: true,
+        message: `Automated dispatcher allocated ${result.count} application(s) directly to accredited officers.`,
+        result
+      });
+    } catch (err) {
+      next(err);
+    }
+  },
+
+  /**
+   * Automated Operations: Expiry Scan & Notifications Dispatch
+   */
+  async triggerExpiryScan(req, res, next) {
+    try {
+      const result = await db.scanExpiries();
+
+      await auditService.log(
+        req,
+        'EXPIRY_SCAN_TRIGGERED',
+        'SYSTEM',
+        'CRON',
+        null,
+        { expiring_count: result.expiring_count, notifications_sent: result.notifications_sent }
+      );
+
+      return res.json({
+        success: true,
+        message: `Scan complete: ${result.expiring_count} expiring certificate(s) identified. ${result.notifications_sent} compliance notice(s) dispatched.`,
+        result
+      });
+    } catch (err) {
+      next(err);
+    }
   }
 };

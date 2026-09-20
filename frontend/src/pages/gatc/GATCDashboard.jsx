@@ -1,31 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { DataTable } from '../../components/common/DataTable';
 import { StatusBadge } from '../../components/common/StatusBadge';
-import { Award, CheckCircle2, ShieldCheck, Play, Building2 } from 'lucide-react';
+import { Award, CheckCircle2, ShieldCheck, Play, Building2, RefreshCw, Radio } from 'lucide-react';
 
 export const GATCDashboard = () => {
   const { user } = useAuth();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const loadData = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
+    else setIsRefreshing(true);
+    try {
+      const res = await api.getApplications();
+      if (res.success && res.applications) {
+        setApplications(res.applications);
+        setLastUpdated(new Date());
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+      setIsRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await api.getApplications();
-        if (res.success && res.applications) {
-          setApplications(res.applications);
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
     loadData();
-  }, []);
+    // Real-time: poll every 20 seconds
+    const interval = setInterval(() => {
+      if (!document.hidden) loadData(true);
+    }, 20000);
+    return () => clearInterval(interval);
+  }, [loadData]);
 
   const pendingCount = applications.filter(a => ['ASSIGNED', 'SCHEDULED', 'UNDER_VERIFICATION'].includes(a.status)).length;
   const completedCount = applications.filter(a => a.status === 'COMPLETED').length;
@@ -118,6 +130,29 @@ export const GATCDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Real-time Sync Bar */}
+      <div className="bg-slate-900 text-white rounded p-3 px-4 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex items-center space-x-2.5">
+          <span className="relative flex h-3 w-3">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+          </span>
+          <Radio size={13} className="text-purple-400" />
+          <span className="font-semibold tracking-wide">Live Test Queue</span>
+          <span className="text-slate-400 text-[11px]">
+            {lastUpdated ? `Updated: ${lastUpdated.toLocaleTimeString()}` : 'Loading...'}
+          </span>
+        </div>
+        <button
+          onClick={() => loadData(true)}
+          disabled={isRefreshing}
+          className="flex items-center space-x-1 bg-gov-blue hover:bg-slate-700 text-white px-2.5 py-1 rounded transition border border-slate-600 disabled:opacity-50"
+        >
+          <RefreshCw size={12} className={isRefreshing ? 'animate-spin text-amber-300' : ''} />
+          <span>Refresh</span>
+        </button>
+      </div>
+
       {/* Header */}
       <div className="bg-white border border-slate-300 rounded shadow-xs p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>

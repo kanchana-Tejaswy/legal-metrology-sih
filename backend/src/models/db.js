@@ -347,6 +347,162 @@ const memoryDb = {
     }
   ],
 
+  // ─── MASTER DIRECTORY: Legal Metrology Offices & GATC Testing Centres ────
+  offices: [
+    {
+      id: 'off-mh-mum-01',
+      name: 'Mumbai Suburban Legal Metrology Divisional Office',
+      code: 'LMO-MH-MUM-SUB',
+      type: 'LMO_OFFICE',
+      officer_name: 'R. Sharma, Senior Inspector LM',
+      user_id: 'c0000000-0000-0000-0000-000000000001',
+      address: 'Legal Metrology Bhavan, C-Wing, BKC, Bandra East',
+      district: 'Mumbai Suburb',
+      state: 'Maharashtra',
+      pincode: '400051',
+      lat: 19.0596,
+      lng: 72.8656,
+      phone: '+91 22 2659 1100',
+      email: 'lmo.mumbai@legalmetrology.gov.in',
+      accredited_scopes: ['EWS', 'PWS', 'PCS', 'WB', 'FPM'],
+      daily_capacity: 25,
+      operating_hours: '09:30 AM - 05:30 PM (Mon - Sat)'
+    },
+    {
+      id: 'off-mh-mum-02',
+      name: 'Metro Metrology & Testing Services (Accredited GATC)',
+      code: 'GATC-MH-MUM-049',
+      type: 'GATC_LAB',
+      officer_name: 'Praveen Nair, Technical Director',
+      user_id: 'd0000000-0000-0000-0000-000000000001',
+      address: 'MIDC Industrial Area, Unit 7B, Central Road, Andheri East',
+      district: 'Mumbai Suburb',
+      state: 'Maharashtra',
+      pincode: '400093',
+      lat: 19.1136,
+      lng: 72.8697,
+      phone: '+91 22 2830 5566',
+      email: 'verification@metrometrology.com',
+      accredited_scopes: ['EWS', 'PWS', 'PCS'],
+      daily_capacity: 40,
+      operating_hours: '09:00 AM - 06:00 PM (Mon - Sat)'
+    },
+    {
+      id: 'off-mh-mum-03',
+      name: 'Apex Calibration & Metrological Testing Lab (GATC)',
+      code: 'GATC-MH-THA-012',
+      type: 'GATC_LAB',
+      officer_name: 'Dr. V. Kulkarni',
+      user_id: 'd0000000-0000-0000-0000-000000000001',
+      address: 'Wagle Estate, Road No. 16, Near Passport Office',
+      district: 'Thane',
+      state: 'Maharashtra',
+      pincode: '400604',
+      lat: 19.1973,
+      lng: 72.9566,
+      phone: '+91 22 2582 7711',
+      email: 'contact@apexcalibration.in',
+      accredited_scopes: ['EWS', 'PWS', 'PCS'],
+      daily_capacity: 30,
+      operating_hours: '09:30 AM - 05:30 PM (Mon - Sat)'
+    },
+    {
+      id: 'off-mh-pune-01',
+      name: 'Pune Division Legal Metrology Inspectorate',
+      code: 'LMO-MH-PUN-01',
+      type: 'LMO_OFFICE',
+      officer_name: 'M. S. Deshmukh, LM Inspector',
+      user_id: 'c0000000-0000-0000-0000-000000000001',
+      address: 'Administrative Building, Near Council Hall, Camp',
+      district: 'Pune',
+      state: 'Maharashtra',
+      pincode: '411001',
+      lat: 18.5204,
+      lng: 73.8567,
+      phone: '+91 20 2612 3456',
+      email: 'pune.inspector@legalmetrology.gov.in',
+      accredited_scopes: ['EWS', 'PWS', 'PCS', 'WB', 'FPM'],
+      daily_capacity: 20,
+      operating_hours: '10:00 AM - 05:00 PM (Mon - Fri)'
+    },
+    {
+      id: 'off-dl-del-01',
+      name: 'Delhi Central Legal Metrology Bhavan',
+      code: 'LMO-DL-CENT-01',
+      type: 'LMO_OFFICE',
+      officer_name: 'Harish Chandra, Assistant Controller',
+      user_id: 'c0000000-0000-0000-0000-000000000001',
+      address: 'Vikas Bhawan, I.P. Estate, New Delhi',
+      district: 'New Delhi',
+      state: 'Delhi',
+      pincode: '110002',
+      lat: 28.6139,
+      lng: 77.2090,
+      phone: '+91 11 2337 8900',
+      email: 'delhi.hq@legalmetrology.gov.in',
+      accredited_scopes: ['EWS', 'PWS', 'PCS', 'WB', 'FPM'],
+      daily_capacity: 35,
+      operating_hours: '09:30 AM - 05:30 PM (Mon - Sat)'
+    },
+    {
+      id: 'off-dl-del-02',
+      name: 'National Standard & Precision Testing Lab (GATC)',
+      code: 'GATC-DL-OKH-021',
+      type: 'GATC_LAB',
+      officer_name: 'Rajiv Mehra, Lab Director',
+      user_id: 'd0000000-0000-0000-0000-000000000001',
+      address: 'Okhla Industrial Area Phase III, New Delhi',
+      district: 'South Delhi',
+      state: 'Delhi',
+      pincode: '110020',
+      lat: 28.5355,
+      lng: 77.2732,
+      phone: '+91 11 4161 2233',
+      email: 'support@nationalmetrology.org',
+      accredited_scopes: ['EWS', 'PWS', 'PCS'],
+      daily_capacity: 50,
+      operating_hours: '09:00 AM - 06:00 PM (Mon - Sat)'
+    },
+    {
+      id: 'off-ka-blr-01',
+      name: 'Bengaluru Urban Legal Metrology Complex',
+      code: 'LMO-KA-BLR-URB',
+      type: 'LMO_OFFICE',
+      officer_name: 'K. N. Gowda, Inspector',
+      user_id: 'c0000000-0000-0000-0000-000000000001',
+      address: 'Ali Asker Road, Vasanth Nagar, Bengaluru',
+      district: 'Bengaluru Urban',
+      state: 'Karnataka',
+      pincode: '560052',
+      lat: 12.9716,
+      lng: 77.5946,
+      phone: '+91 80 2226 7890',
+      email: 'blr.metrology@karnataka.gov.in',
+      accredited_scopes: ['EWS', 'PWS', 'PCS', 'WB', 'FPM'],
+      daily_capacity: 30,
+      operating_hours: '10:00 AM - 05:30 PM (Mon - Sat)'
+    },
+    {
+      id: 'off-tg-hyd-01',
+      name: 'Hyderabad Metropolitan Metrology Bhavan',
+      code: 'LMO-TG-HYD-01',
+      type: 'LMO_OFFICE',
+      officer_name: 'T. Rama Rao, Inspector',
+      user_id: 'c0000000-0000-0000-0000-000000000001',
+      address: 'Civil Supplies Bhavan, Somajiguda, Hyderabad',
+      district: 'Hyderabad',
+      state: 'Telangana',
+      pincode: '500082',
+      lat: 17.4256,
+      lng: 78.4583,
+      phone: '+91 40 2331 4567',
+      email: 'hyd.metrology@telangana.gov.in',
+      accredited_scopes: ['EWS', 'PWS', 'PCS', 'WB', 'FPM'],
+      daily_capacity: 25,
+      operating_hours: '09:30 AM - 05:00 PM (Mon - Sat)'
+    }
+  ],
+
   categories: [
     {
       id: '11111111-1111-1111-1111-111111111001',
@@ -472,6 +628,42 @@ const memoryDb = {
       photograph_url: null,
       current_status: 'PENDING',
       created_at: new Date('2026-02-01T15:00:00Z').toISOString()
+    },
+    {
+      id: 'e0000000-0000-0000-0000-000000000005',
+      owner_id: 'b0000000-0000-0000-0000-000000000001',
+      category_id: '11111111-1111-1111-1111-111111111004',
+      instrument_type: 'Electronic Weighbridge (Pitless / Pit)',
+      manufacturer: 'Avery India Ltd',
+      model_number: 'WB-100T-IND',
+      serial_number: 'SN-2024-WB-5501',
+      max_capacity: 60000.0000,
+      min_capacity: 400.0000,
+      unit: 'kg',
+      verification_scale_interval: 10.0000,
+      location: 'Heavy Vehicle Inward Gate 4, ABC Logistics Hub, Mumbai Suburb',
+      description: '60 Tonne pitless heavy vehicle weighbridge for freight trucks',
+      photograph_url: null,
+      current_status: 'EXPIRING_SOON',
+      created_at: new Date('2026-01-12T08:30:00Z').toISOString()
+    },
+    {
+      id: 'e0000000-0000-0000-0000-000000000006',
+      owner_id: 'b0000000-0000-0000-0000-000000000001',
+      category_id: '11111111-1111-1111-1111-111111111005',
+      instrument_type: 'Fuel Dispensing Unit (Petrol/Diesel)',
+      manufacturer: 'Gilbarco Veeder-Root',
+      model_number: 'Encore 500S',
+      serial_number: 'SN-2025-FPM-3302',
+      max_capacity: 80.0000,
+      min_capacity: 2.0000,
+      unit: 'L/min',
+      verification_scale_interval: 0.0100,
+      location: 'Retail Petroleum Dispenser Bay 2, Highway Outpost, Mumbai',
+      description: 'Dual nozzle calibrated fuel pump with automatic pulser unit',
+      photograph_url: null,
+      current_status: 'VALID',
+      created_at: new Date('2026-01-05T12:00:00Z').toISOString()
     }
   ],
 
@@ -1489,43 +1681,52 @@ export const db = {
   },
 
   async createApplication(appData) {
-    if (isSupabaseConfigured) {
-      try {
-        const year = new Date().getFullYear();
-        const { count } = await supabase.from('applications').select('*', { count: 'exact', head: true });
-        const appId = `LM-APP-${year}-${String((count || 0) + 101).padStart(6, '0')}`;
-
-        const payload = {
-          id: appId,
-          owner_id: appData.owner_id,
-          instrument_id: appData.instrument_id,
-          application_type: appData.application_type || 'NEW',
-          preferred_date: appData.preferred_date,
-          preferred_time: appData.preferred_time || '10:00 AM',
-          remarks: appData.remarks || '',
-          status: 'SUBMITTED',
-          documents: appData.documents || []
-        };
-
-        const { data, error } = await supabase
-          .from('applications')
-          .insert([payload])
-          .select()
-          .single();
-        if (error) {
-          console.error('Supabase createApplication error:', error.message);
-          throw error;
-        }
-
-        await this.updateInstrumentStatus(appData.instrument_id, 'PENDING');
-        return this.getApplicationById(data.id);
-      } catch (err) {
-        console.error('Supabase createApplication exception:', err.message);
-      }
-    }
     const year = new Date().getFullYear();
     const count = memoryDb.applications.length + 101;
     const appId = `LM-APP-${year}-${String(count).padStart(6, '0')}`;
+
+    // Look up instrument & category
+    const instrument = memoryDb.instruments.find(i => i.id === appData.instrument_id);
+    const category = instrument ? memoryDb.categories.find(c => c.id === instrument.category_id) : null;
+    const isGatcEligible = category ? Boolean(category.gatc_eligible) : true;
+
+    // Automated Direct Allotment Resolution
+    let verifierType = 'LMO';
+    let verifierId = 'c0000000-0000-0000-0000-000000000001'; // Default Senior LMO Inspector
+    let assignedOffice = null;
+
+    if (appData.preferred_office_id) {
+      const selectedOffice = memoryDb.offices.find(o => o.id === appData.preferred_office_id);
+      if (selectedOffice) {
+        assignedOffice = selectedOffice;
+        if (selectedOffice.type === 'GATC_LAB' && isGatcEligible) {
+          verifierType = 'GATC';
+          verifierId = selectedOffice.user_id || 'd0000000-0000-0000-0000-000000000001';
+        } else {
+          verifierType = 'LMO';
+          verifierId = selectedOffice.user_id || 'c0000000-0000-0000-0000-000000000001';
+        }
+      }
+    } else {
+      // Category-based direct automated routing without manual admin allotment:
+      // Heavy/specialized instruments (Weighbridges WB, Fuel Dispensers FPM) strictly route to LMO
+      if (!isGatcEligible) {
+        verifierType = 'LMO';
+        verifierId = 'c0000000-0000-0000-0000-000000000001';
+        assignedOffice = memoryDb.offices.find(o => o.type === 'LMO_OFFICE');
+      } else {
+        // Retail / Countertop commercial scales: route to GATC if requested, otherwise route to LMO
+        if (appData.preferred_cadre === 'GATC') {
+          verifierType = 'GATC';
+          verifierId = 'd0000000-0000-0000-0000-000000000001';
+          assignedOffice = memoryDb.offices.find(o => o.type === 'GATC_LAB');
+        } else {
+          verifierType = 'LMO';
+          verifierId = 'c0000000-0000-0000-0000-000000000001';
+          assignedOffice = memoryDb.offices.find(o => o.type === 'LMO_OFFICE');
+        }
+      }
+    }
 
     const newApp = {
       id: appId,
@@ -1535,7 +1736,10 @@ export const db = {
       preferred_date: appData.preferred_date,
       preferred_time: appData.preferred_time || '10:00 AM',
       remarks: appData.remarks || '',
-      status: 'SUBMITTED',
+      preferred_office_id: appData.preferred_office_id || assignedOffice?.id || null,
+      status: 'ASSIGNED', // Direct allotment: no manual admin bottleneck!
+      auto_allocated: true,
+      allocated_at: new Date().toISOString(),
       documents: appData.documents || [],
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -1543,6 +1747,34 @@ export const db = {
 
     memoryDb.applications.push(newApp);
     await this.updateInstrumentStatus(appData.instrument_id, 'PENDING');
+
+    // Create immediate active assignment record
+    const newAssignment = {
+      id: `as-${Date.now()}`,
+      application_id: appId,
+      verifier_type: verifierType,
+      verifier_id: verifierId,
+      assigned_by: 'SYSTEM_AUTO_DIRECT_ALLOTMENT',
+      assigned_date: new Date().toISOString(),
+      notes: `Automated direct allotment for category "${category?.name || 'Standard Scale'}" to ${verifierType === 'LMO' ? 'Legal Metrology Inspector' : 'GATC Testing Lab'}.`,
+      is_active: true
+    };
+    memoryDb.assignments.push(newAssignment);
+
+    // Create schedule record
+    const scheduleDate = appData.preferred_date || new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0];
+    const newSchedule = {
+      id: `sch-${Date.now()}`,
+      application_id: appId,
+      verifier_id: verifierId,
+      scheduled_date: scheduleDate,
+      scheduled_time: appData.preferred_time || '10:30 AM',
+      location: instrument?.location || (assignedOffice ? assignedOffice.address : 'Commercial Registered Premises'),
+      status: 'SCHEDULED',
+      created_at: new Date().toISOString()
+    };
+    memoryDb.schedules.push(newSchedule);
+
     return this.getApplicationById(newApp.id);
   },
 
@@ -2294,6 +2526,279 @@ export const db = {
       validCertificates: validCerts,
       expiringSoon,
       expiredCertificates: expiredCerts
+    };
+  },
+
+  // ─── Proximity Search for Verification Offices & Test Centres ──────────
+  async getNearbyOffices({ state = '', district = '', pincode = '', lat = null, lng = null, category_code = '' }) {
+    let offices = [...(memoryDb.offices || [])];
+
+    // Filter by category accreditation if category code passed
+    if (category_code) {
+      offices = offices.filter(o => !o.accredited_scopes || o.accredited_scopes.includes(category_code));
+    }
+
+    const scored = offices.map(office => {
+      let distanceKm = 6.5;
+      let matchScore = 0;
+
+      if (lat && lng && office.lat && office.lng) {
+        const R = 6371; // km
+        const dLat = (office.lat - lat) * Math.PI / 180;
+        const dLng = (office.lng - lng) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(lat * Math.PI / 180) * Math.cos(office.lat * Math.PI / 180) *
+          Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        distanceKm = parseFloat((R * c).toFixed(1));
+        matchScore = Math.max(10, Math.round(100 - distanceKm * 2));
+      } else {
+        if (pincode && office.pincode && office.pincode.slice(0, 3) === pincode.slice(0, 3)) {
+          distanceKm = Math.abs(parseInt(office.pincode) - parseInt(pincode)) % 12 + 1.5;
+          matchScore += 50;
+        }
+        if (district && office.district.toLowerCase() === district.toLowerCase()) {
+          matchScore += 40;
+          distanceKm = Math.min(distanceKm, 3.2);
+        } else if (state && office.state.toLowerCase() === state.toLowerCase()) {
+          matchScore += 20;
+          distanceKm = Math.min(distanceKm, 14.8);
+        } else {
+          distanceKm = Math.max(distanceKm, 28.0);
+        }
+      }
+
+      // Compute next 3 available working slot dates
+      const nextSlots = [];
+      const today = new Date();
+      for (let i = 1; nextSlots.length < 3; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        if (d.getDay() !== 0) { // Exclude Sundays
+          nextSlots.push(d.toISOString().split('T')[0]);
+        }
+      }
+
+      return {
+        ...office,
+        distance_km: distanceKm,
+        match_score: matchScore,
+        available_slots: nextSlots,
+        earliest_slot: nextSlots[0]
+      };
+    });
+
+    // Closest first
+    scored.sort((a, b) => a.distance_km - b.distance_km);
+    return scored;
+  },
+
+  // ─── Admin Provisioning: LMO & GATC Officers (Strict Role Enforcement) ───
+  async createOfficer(officerData, createdByAdminId) {
+    const {
+      role, // Must be 'LMO' or 'GATC'
+      email,
+      password,
+      full_name,
+      phone,
+      officer_code,
+      designation,
+      jurisdiction_zone,
+      office_address,
+      centre_name,
+      authorization_no,
+      authorized_scope,
+      lab_address,
+      contact_person,
+      valid_until
+    } = officerData;
+
+    // Strict Security Guard: Admin is only permitted to create LMO and GATC officers
+    if (!['LMO', 'GATC'].includes(role)) {
+      const err = new Error('Security Violation: Admin is strictly restricted to provisioning Legal Metrology Officers (LMO) and Government Approved Test Centres (GATC) only.');
+      err.status = 400;
+      throw err;
+    }
+
+    if (!email || !password || !full_name) {
+      const err = new Error('Email, password, and official name are required.');
+      err.status = 400;
+      throw err;
+    }
+
+    const existing = memoryDb.users.find(u => u.email.toLowerCase() === email.trim().toLowerCase());
+    if (existing) {
+      const err = new Error(`An account with email "${email}" is already registered.`);
+      err.status = 409;
+      throw err;
+    }
+
+    const userId = `usr-off-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const password_hash = bcrypt.hashSync(password, 10);
+
+    const newUser = {
+      id: userId,
+      email: email.trim().toLowerCase(),
+      password_hash,
+      role,
+      status: 'APPROVED',
+      full_name: role === 'GATC' ? (centre_name || full_name) : full_name,
+      phone: phone || '+91 98000 00000',
+      created_at: new Date().toISOString()
+    };
+    memoryDb.users.push(newUser);
+
+    let profile = null;
+    if (role === 'LMO') {
+      profile = {
+        id: `lp-${Date.now()}`,
+        user_id: userId,
+        officer_code: officer_code || `LMO-${Date.now().toString().slice(-6)}`,
+        designation: designation || 'Legal Metrology Inspector',
+        jurisdiction_zone: jurisdiction_zone || 'Metropolitan Jurisdiction',
+        office_address: office_address || 'Regional Legal Metrology Bhavan'
+      };
+      memoryDb.lmo_profiles.push(profile);
+
+      // Add to directory
+      memoryDb.offices.push({
+        id: `off-dyn-${Date.now()}`,
+        name: `${profile.designation} (${profile.jurisdiction_zone})`,
+        code: profile.officer_code,
+        type: 'LMO_OFFICE',
+        officer_name: newUser.full_name,
+        user_id: userId,
+        address: profile.office_address,
+        district: 'Jurisdiction Zone',
+        state: 'State Directorate',
+        pincode: '400001',
+        phone: newUser.phone,
+        email: newUser.email,
+        accredited_scopes: ['EWS', 'PWS', 'PCS', 'WB', 'FPM'],
+        daily_capacity: 25,
+        operating_hours: '09:30 AM - 05:30 PM (Mon - Sat)'
+      });
+    } else if (role === 'GATC') {
+      profile = {
+        id: `gp-${Date.now()}`,
+        user_id: userId,
+        centre_name: centre_name || full_name,
+        authorization_no: authorization_no || `GATC-GOI-${new Date().getFullYear()}-${Date.now().toString().slice(-4)}`,
+        authorized_scope: Array.isArray(authorized_scope) && authorized_scope.length > 0 ? authorized_scope : ['EWS', 'PWS', 'PCS'],
+        lab_address: lab_address || office_address || 'Accredited Testing & Calibration Facility',
+        contact_person: contact_person || full_name,
+        valid_until: valid_until || new Date(Date.now() + 365 * 24 * 3600 * 1000 * 3).toISOString().split('T')[0]
+      };
+      memoryDb.gatc_profiles.push(profile);
+
+      // Add to directory
+      memoryDb.offices.push({
+        id: `off-dyn-${Date.now()}`,
+        name: profile.centre_name,
+        code: profile.authorization_no,
+        type: 'GATC_LAB',
+        officer_name: profile.contact_person,
+        user_id: userId,
+        address: profile.lab_address,
+        district: 'Accredited Zone',
+        state: 'Regional Division',
+        pincode: '400001',
+        phone: newUser.phone,
+        email: newUser.email,
+        accredited_scopes: profile.authorized_scope,
+        daily_capacity: 35,
+        operating_hours: '09:00 AM - 06:00 PM (Mon - Sat)'
+      });
+    }
+
+    return {
+      user: {
+        id: newUser.id,
+        email: newUser.email,
+        role: newUser.role,
+        full_name: newUser.full_name,
+        phone: newUser.phone,
+        status: newUser.status,
+        created_at: newUser.created_at
+      },
+      profile
+    };
+  },
+
+  // ─── Automated Operations: Smart Allocation of Unassigned Applications ──
+  async autoAllocatePendingApplications() {
+    const unallocated = memoryDb.applications.filter(a => a.status === 'SUBMITTED' || a.status === 'UNDER_REVIEW');
+    const allocatedResults = [];
+
+    for (const app of unallocated) {
+      const instrument = memoryDb.instruments.find(i => i.id === app.instrument_id);
+      const category = instrument ? memoryDb.categories.find(c => c.id === instrument.category_id) : null;
+      const isGatcEligible = category ? Boolean(category.gatc_eligible) : true;
+
+      let verifierType = 'LMO';
+      let verifierId = 'c0000000-0000-0000-0000-000000000001';
+
+      if (!isGatcEligible) {
+        verifierType = 'LMO';
+        verifierId = 'c0000000-0000-0000-0000-000000000001';
+      } else {
+        verifierType = 'GATC';
+        verifierId = 'd0000000-0000-0000-0000-000000000001';
+      }
+
+      await this.assignApplication(app.id, verifierType, verifierId, 'AUTOMATED_DISPATCHER', `Auto-allocated based on category rules (${category?.name || 'Scale'}).`);
+      await this.scheduleVerification(app.id, app.preferred_date || new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0], app.preferred_time || '10:30 AM', instrument?.location || 'Registered Premises', verifierId, 'Automated scheduling');
+
+      allocatedResults.push({
+        application_id: app.id,
+        assigned_to_role: verifierType,
+        assigned_to_id: verifierId
+      });
+    }
+
+    return {
+      count: allocatedResults.length,
+      allocated: allocatedResults
+    };
+  },
+
+  // ─── Automated Operations: Expiry Scan & Reminder Generator ─────────────
+  async scanExpiries() {
+    const now = new Date();
+    const thirtyDaysFromNow = new Date();
+    thirtyDaysFromNow.setDate(now.getDate() + 30);
+
+    const expiring = memoryDb.certificates.filter(c => {
+      if (c.status !== 'VALID') return false;
+      const exp = new Date(c.valid_until);
+      return exp >= now && exp <= thirtyDaysFromNow;
+    });
+
+    const notificationsSent = [];
+    for (const cert of expiring) {
+      const instrument = memoryDb.instruments.find(i => i.id === cert.instrument_id);
+      const daysLeft = Math.max(1, Math.ceil((new Date(cert.valid_until) - now) / (1000 * 60 * 60 * 24)));
+      
+      const notif = {
+        id: `notif-${Date.now()}-${cert.id.slice(-4)}`,
+        user_id: cert.owner_id,
+        title: `Statutory Expiry Warning: Certificate ${cert.certificate_number}`,
+        message: `Your verification certificate for "${instrument?.instrument_type || 'Instrument'}" (Serial: ${cert.instrument_serial_no}) will expire in ${daysLeft} days on ${cert.valid_until.split('T')[0]}. Re-verification application is required under Section 24 of the Legal Metrology Act.`,
+        type: 'ALERT',
+        entity_type: 'CERTIFICATE',
+        entity_id: cert.id,
+        is_read: false,
+        created_at: new Date().toISOString()
+      };
+      memoryDb.notifications.push(notif);
+      notificationsSent.push({ certificate_id: cert.id, owner_id: cert.owner_id, days_left: daysLeft });
+    }
+
+    return {
+      scanned_at: new Date().toISOString(),
+      expiring_count: expiring.length,
+      notifications_sent: notificationsSent.length,
+      details: notificationsSent
     };
   }
 };

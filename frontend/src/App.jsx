@@ -33,6 +33,7 @@ import { GATCVerificationPage } from './pages/gatc/GATCVerificationPage';
 
 // Admin Pages
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminOfficersPage } from './pages/admin/AdminOfficersPage';
 import { AdminStakeholdersPage } from './pages/admin/AdminStakeholdersPage';
 import { AdminApplicationsPage } from './pages/admin/AdminApplicationsPage';
 import { AdminCertificatesPage } from './pages/admin/AdminCertificatesPage';
@@ -162,6 +163,14 @@ export function App() {
           element={
             <ProtectedRoute allowedRoles={['ADMIN']}>
               <AdminStakeholdersPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="admin/officers"
+          element={
+            <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminOfficersPage />
             </ProtectedRoute>
           }
         />
