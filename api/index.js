@@ -7,10 +7,8 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-// Resolve .env from repo root (works locally and on Vercel)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+// Load env vars (Vercel injects them automatically in production)
+dotenv.config();
 
 // Import all route handlers from the backend src
 import authRoutes from '../backend/src/routes/authRoutes.js';
@@ -21,7 +19,6 @@ import certificateRoutes from '../backend/src/routes/certificateRoutes.js';
 import adminRoutes from '../backend/src/routes/adminRoutes.js';
 import publicRoutes from '../backend/src/routes/publicRoutes.js';
 import notificationRoutes from '../backend/src/routes/notificationRoutes.js';
-import paymentRoutes from '../backend/src/routes/paymentRoutes.js';
 import { errorHandler } from '../backend/src/middleware/errorHandler.js';
 
 const app = express();
@@ -39,18 +36,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Health check
 app.get('/api/health', (req, res) => {
-  const supabaseConfigured = Boolean(
-    process.env.SUPABASE_URL &&
-    process.env.SUPABASE_SERVICE_ROLE_KEY &&
-    !process.env.SUPABASE_URL.includes('your-project-ref')
-  );
   res.json({
     status: 'UP',
     system: 'Department of Legal Metrology - Online Verification System (SIH 26036)',
     version: '2.4.1-gov',
     environment: 'Vercel Serverless',
-    database: supabaseConfigured ? 'Supabase Cloud PostgreSQL' : 'In-Memory (Demo Mode)',
-    supabase_url: supabaseConfigured ? process.env.SUPABASE_URL : null,
     timestamp: new Date().toISOString()
   });
 });
@@ -64,7 +54,6 @@ app.use('/api/certificates', certificateRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/public', publicRoutes);
 app.use('/api/notifications', notificationRoutes);
-app.use('/api/payments', paymentRoutes);
 
 // Central error handler
 app.use(errorHandler);

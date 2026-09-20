@@ -54,31 +54,31 @@ export const LoginPage = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto my-8 sm:my-12 px-4">
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-elevated overflow-hidden ring-1 ring-slate-900/5">
+    <div className="max-w-md mx-auto my-8 px-4">
+      <div className="bg-white rounded border border-slate-300 shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="bg-gov-navy text-white p-6 text-center border-b-2 border-amber-500">
-          <div className="inline-flex p-2.5 rounded-full bg-white/10 ring-1 ring-white/20 mb-2.5">
+        <div className="bg-gov-navy text-white p-5 text-center border-b-2 border-amber-500">
+          <div className="inline-block p-2 rounded-full bg-slate-800/80 mb-2">
             <Lock size={22} className="text-amber-400" />
           </div>
-          <h2 className="text-xl font-bold font-serif tracking-tight text-white">Department Single Sign-On (SSO)</h2>
-          <p className="text-xs text-slate-300 mt-0.5">
+          <h2 className="text-lg font-bold font-serif">Department Single Sign-On (SSO)</h2>
+          <p className="text-xs text-slate-300">
             Authorized Legal Metrology Stakeholders & Officers Portal
           </p>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="m-5 p-3.5 bg-red-50/90 border-l-4 border-red-600 rounded-r-lg text-xs text-red-800 flex items-start space-x-2.5">
+          <div className="m-4 p-3 bg-red-50 border-l-4 border-red-600 text-xs text-red-800 flex items-start space-x-2">
             <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
             <div>{error}</div>
           </div>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
               Registered Email ID
             </label>
             <div className="relative">
@@ -87,15 +87,15 @@ export const LoginPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@domain.gov.in"
-                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-md focus:ring-1 focus:ring-gov-navy focus:border-gov-navy transition shadow-2xs"
+                className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy focus:border-gov-navy"
                 required
               />
-              <Mail size={15} className="absolute left-3 top-2.5 sm:top-3 text-slate-400" />
+              <Mail size={15} className="absolute left-3 top-2.5 text-slate-400" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
               Password
             </label>
             <div className="relative">
@@ -104,85 +104,84 @@ export const LoginPage = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-md focus:ring-1 focus:ring-gov-navy focus:border-gov-navy transition shadow-2xs"
+                className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy focus:border-gov-navy"
                 required
               />
-              <Lock size={15} className="absolute left-3 top-2.5 sm:top-3 text-slate-400" />
+              <Lock size={15} className="absolute left-3 top-2.5 text-slate-400" />
             </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gov-navy hover:bg-gov-blue text-white py-2.5 sm:py-3 rounded-md text-xs sm:text-sm font-semibold transition btn-tactile shadow-sm flex items-center justify-center space-x-2 disabled:opacity-50"
+            className="w-full bg-gov-navy hover:bg-gov-blue text-white py-2.5 rounded text-xs font-bold uppercase tracking-wider transition shadow flex items-center justify-center space-x-1.5 disabled:opacity-50"
           >
             {loading ? <span>Authenticating...</span> : <span>Sign In Securely</span>}
           </button>
         </form>
 
         {/* One-Click Quick Demo Login Suite */}
-        <div className="bg-slate-50/80 p-5 border-t border-slate-200/90">
-          <div className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-2.5 text-center flex items-center justify-center space-x-1.5">
-            <UserCheck size={14} className="text-amber-600" />
-            <span>One-Click Evaluator Demo Accounts</span>
+        <div className="bg-slate-50 p-4 border-t border-slate-200">
+          <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-2 text-center">
+            One-Click Demo Roles (For Evaluators)
           </div>
 
-          <div className="space-y-1.5 text-xs">
+          <div className="grid grid-cols-1 gap-1.5 text-xs">
             <button
               type="button"
               onClick={() => setDemoCredentials('admin@legalmetrology.demo')}
-              className="w-full p-2 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg text-left flex items-center justify-between transition btn-tactile shadow-2xs"
+              className="p-1.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-left flex items-center justify-between transition"
             >
               <span className="font-semibold text-gov-navy">1. Department Administrator</span>
-              <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-mono border border-slate-200">admin</span>
+              <span className="text-[10px] bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded font-mono">admin</span>
             </button>
 
             <button
               type="button"
               onClick={() => setDemoCredentials('owner@business.demo')}
-              className="w-full p-2 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg text-left flex items-center justify-between transition btn-tactile shadow-2xs"
+              className="p-1.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-left flex items-center justify-between transition"
             >
-              <span className="font-semibold text-emerald-900">2. Approved Owner (ABC Supermarket)</span>
-              <span className="text-[10px] bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/20 px-2 py-0.5 rounded-full font-mono">approved</span>
+              <span className="font-semibold text-emerald-800">2. Approved Owner (ABC Supermarket)</span>
+              <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded font-mono">approved</span>
             </button>
 
             <button
               type="button"
               onClick={() => setDemoCredentials('newapplicant@traders.demo')}
-              className="w-full p-2 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg text-left flex items-center justify-between transition btn-tactile shadow-2xs"
+              className="p-1.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-left flex items-center justify-between transition"
             >
-              <span className="font-semibold text-amber-900">3. Pending Owner (Sri Lakshmi Traders)</span>
-              <span className="text-[10px] bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20 px-2 py-0.5 rounded-full font-mono">pending</span>
+              <span className="font-semibold text-amber-800">3. Pending Owner (Sri Lakshmi Traders)</span>
+              <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-mono">pending</span>
             </button>
 
             <button
               type="button"
               onClick={() => setDemoCredentials('lmo@legalmetrology.demo')}
-              className="w-full p-2 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg text-left flex items-center justify-between transition btn-tactile shadow-2xs"
+              className="p-1.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-left flex items-center justify-between transition"
             >
-              <span className="font-semibold text-blue-900">4. Legal Metrology Officer (LMO)</span>
-              <span className="text-[10px] bg-blue-50 text-blue-800 ring-1 ring-inset ring-blue-600/20 px-2 py-0.5 rounded-full font-mono">lmo</span>
+              <span className="font-semibold text-blue-800">4. Legal Metrology Officer (LMO)</span>
+              <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-mono">lmo</span>
             </button>
 
             <button
               type="button"
               onClick={() => setDemoCredentials('gatc@testcentre.demo')}
-              className="w-full p-2 bg-white hover:bg-slate-50 border border-slate-200/90 rounded-lg text-left flex items-center justify-between transition btn-tactile shadow-2xs"
+              className="p-1.5 bg-white hover:bg-slate-100 border border-slate-300 rounded text-left flex items-center justify-between transition"
             >
-              <span className="font-semibold text-purple-900">5. GATC Test Centre (Metro Lab)</span>
-              <span className="text-[10px] bg-purple-50 text-purple-800 ring-1 ring-inset ring-purple-600/20 px-2 py-0.5 rounded-full font-mono">gatc</span>
+              <span className="font-semibold text-purple-800">5. GATC Test Centre (Metro Lab)</span>
+              <span className="text-[10px] bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded font-mono">gatc</span>
             </button>
           </div>
 
           <div className="mt-3 text-[10px] text-slate-500 text-center font-mono">
-            Demo Password for all roles: <span className="font-semibold text-slate-700">DemoPassword@2026</span>
+            Demo Password for all accounts: DemoPassword@2026
           </div>
         </div>
 
         {/* Footer Registration Link */}
-        <div className="p-3.5 bg-slate-100/80 text-center border-t border-slate-200/80 text-xs">
+        <div className="p-3 bg-slate-100 text-center border-t border-slate-200 text-xs">
           <span className="text-slate-600">New Business / Instrument Owner? </span>
-          <Link to="/register" className="font-semibold text-gov-blue hover:underline">
+          <Link to="/register" className="font-bold text-gov-blue hover:underline">
             Register Stakeholder Account
           </Link>
         </div>

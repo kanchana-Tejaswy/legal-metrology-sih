@@ -14,10 +14,7 @@ import {
   Printer,
   FileCheck,
   Lock,
-  Clock,
-  Copy,
-  Check,
-  QrCode
+  Clock
 } from 'lucide-react';
 import { StatusBadge } from '../../components/common/StatusBadge';
 
@@ -29,21 +26,6 @@ export const PublicVerifyPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [copiedId, setCopiedId] = useState(false);
-  const [copiedHash, setCopiedHash] = useState(false);
-
-  const handleCopy = (text, type) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
-      if (type === 'id') {
-        setCopiedId(true);
-        setTimeout(() => setCopiedId(false), 2000);
-      } else {
-        setCopiedHash(true);
-        setTimeout(() => setCopiedHash(false), 2000);
-      }
-    }
-  };
 
   const fetchVerification = async (certId) => {
     if (!certId) return;
@@ -83,7 +65,7 @@ export const PublicVerifyPage = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Top Breadcrumb & Heading */}
-      <div className="border-b border-slate-300 pb-3 no-print">
+      <div className="border-b border-slate-300 pb-3">
         <div className="text-xs text-slate-500 mb-1">
           <Link to="/" className="hover:underline text-gov-blue">Home</Link> / Public Verification
         </div>
@@ -97,10 +79,10 @@ export const PublicVerifyPage = () => {
       </div>
 
       {/* Verification Lookup Input Box */}
-      <div className="bg-white p-5 rounded-xl border border-slate-200/90 shadow-card no-print">
+      <div className="bg-white p-4 sm:p-5 rounded border border-slate-300 shadow-xs">
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 items-end">
           <div className="flex-1 w-full">
-            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
               Enter Certificate ID / Scan QR Code
             </label>
             <div className="relative">
@@ -109,66 +91,56 @@ export const PublicVerifyPage = () => {
                 placeholder="e.g. CERT-2026-000101"
                 value={inputCertId}
                 onChange={(e) => setInputCertId(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 text-xs sm:text-sm border border-slate-200 rounded-md font-mono tabular-nums focus:ring-1 focus:ring-gov-navy focus:border-gov-navy uppercase transition shadow-2xs"
+                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-300 rounded font-mono focus:ring-1 focus:ring-gov-navy focus:border-gov-navy uppercase"
                 required
               />
-              <Search size={16} className="absolute left-3 top-3 text-slate-400" />
+              <Search size={16} className="absolute left-3 top-2.5 sm:top-3 text-slate-400" />
             </div>
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto bg-gov-navy hover:bg-gov-blue text-white px-6 py-2.5 rounded-md text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition btn-tactile shadow-2xs disabled:opacity-50"
+            className="w-full sm:w-auto bg-gov-navy hover:bg-gov-blue text-white px-6 py-2 sm:py-2.5 rounded text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition disabled:opacity-50"
           >
             {loading ? <span>Querying Registry...</span> : <span>Verify Live Status</span>}
           </button>
         </form>
 
         {/* Demo Quick Lookup Buttons */}
-        <div className="mt-3.5 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-slate-500 font-medium text-[11px]">Quick Demo Samples:</span>
+        <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-slate-500 font-medium">Quick Demo Samples:</span>
           <button
-            type="button"
             onClick={() => {
               setInputCertId('CERT-2026-000101');
               navigate('/verify/CERT-2026-000101');
             }}
-            className="text-[11px] font-medium bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/20 px-2.5 py-0.5 rounded-full hover:bg-emerald-100 transition btn-tactile font-mono"
+            className="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded hover:bg-emerald-100"
           >
-            VALID (CERT-2026-000101)
+            VALID Certificate (CERT-2026-000101)
           </button>
           <button
-            type="button"
             onClick={() => {
               setInputCertId('CERT-2025-000088');
               navigate('/verify/CERT-2025-000088');
             }}
-            className="text-[11px] font-medium bg-orange-50 text-orange-800 ring-1 ring-inset ring-orange-600/20 px-2.5 py-0.5 rounded-full hover:bg-orange-100 transition btn-tactile font-mono"
+            className="text-[11px] bg-orange-50 text-orange-800 border border-orange-300 px-2 py-0.5 rounded hover:bg-orange-100"
           >
-            EXPIRED (CERT-2025-000088)
+            EXPIRED Certificate (CERT-2025-000088)
           </button>
         </div>
       </div>
 
-      {/* Loading Skeleton */}
+      {/* Loading Indicator */}
       {loading && (
-        <div className="bg-white p-6 sm:p-8 rounded-xl border border-slate-200/90 shadow-card skeleton-shimmer space-y-4">
-          <div className="h-16 bg-slate-100 rounded-lg w-full"></div>
-          <div className="space-y-2 pt-2">
-            <div className="h-4 bg-slate-200/70 rounded w-1/3"></div>
-            <div className="h-4 bg-slate-100 rounded w-2/3"></div>
-            <div className="h-4 bg-slate-100 rounded w-1/2"></div>
-          </div>
-          <div className="text-center pt-2 text-xs text-slate-500 font-medium flex items-center justify-center space-x-2">
-            <div className="inline-block animate-spin rounded-full h-3.5 w-3.5 border-2 border-gov-navy border-t-transparent"></div>
-            <span>Accessing National Legal Metrology Registry...</span>
-          </div>
+        <div className="bg-white p-8 rounded border border-slate-300 text-center space-y-2">
+          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gov-navy border-t-transparent"></div>
+          <div className="text-xs font-semibold text-slate-700">Accessing Live Legal Metrology Database...</div>
         </div>
       )}
 
       {/* Verification Result Card */}
       {!loading && result && (
-        <div id="printable-certificate" className="bg-white rounded-xl border border-slate-200/90 shadow-elevated overflow-hidden">
+        <div className="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
           {/* Status Header Banner */}
           <div
             className={`p-5 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${
@@ -233,87 +205,63 @@ export const PublicVerifyPage = () => {
 
           {/* Detailed Certificate Record */}
           {result.verified && result.certificate && (
-            <div className="p-6 sm:p-8 space-y-6 bg-white">
+            <div className="p-6 space-y-6">
               {/* Official Seal and Certificate Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-5 gap-4">
-                <div className="flex items-center space-x-3.5">
-                  <img src="/emblem.svg" alt="Department Seal" className="w-14 h-14 object-contain flex-shrink-0" />
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-4">
+                <div className="flex items-center space-x-3">
+                  <img src="/emblem.svg" alt="Department Seal" className="w-14 h-14" />
                   <div>
-                    <div className="text-[11px] uppercase font-bold text-slate-500 tracking-wider">Government of India • Department of Legal Metrology</div>
-                    <div className="text-lg sm:text-xl font-bold text-gov-navy font-serif tracking-tight">Statutory Certificate of Verification</div>
-                    <div className="text-xs text-slate-600 mt-0.5">Issued under statutory authority of Section 24, Legal Metrology Act, 2009</div>
+                    <div className="text-xs uppercase font-bold text-slate-500">Department of Legal Metrology</div>
+                    <div className="text-base font-bold text-gov-navy font-serif">Certificate of Verification</div>
+                    <div className="text-xs text-slate-600">Issued under Section 24 of Legal Metrology Act, 2009</div>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 w-full sm:w-auto justify-end">
-                  <button
-                    type="button"
-                    onClick={() => window.print()}
-                    className="btn-tactile bg-slate-50 hover:bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center space-x-1.5 transition border border-slate-300 shadow-2xs"
-                  >
-                    <Printer size={14} className="text-slate-500" />
-                    <span>Print Certificate</span>
-                  </button>
-
-                  <div className="bg-slate-50 border border-slate-300 px-3 py-1.5 rounded-lg text-left sm:text-right flex items-center space-x-2">
-                    <div>
-                      <div className="text-[9px] uppercase text-slate-500 font-bold tracking-wider">Certificate ID</div>
-                      <div className="font-mono font-bold text-gov-navy text-xs sm:text-sm">{result.certificate.id}</div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(result.certificate.id, 'id')}
-                      className="btn-tactile p-1 text-slate-400 hover:text-slate-700 rounded transition"
-                      title="Copy Certificate ID"
-                    >
-                      {copiedId ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
-                    </button>
-                  </div>
+                <div className="bg-slate-50 border border-slate-300 p-2.5 rounded text-left sm:text-right">
+                  <div className="text-[10px] uppercase text-slate-500 font-bold">Certificate Number</div>
+                  <div className="font-mono font-bold text-gov-navy text-sm">{result.certificate.id}</div>
                 </div>
               </div>
 
               {/* Data Grid: Instrument & Business Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
                 {/* Instrument Information */}
-                <div className="space-y-3 bg-slate-50/70 p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-2xs">
-                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-[11px] border-b border-slate-200 pb-1.5 flex items-center justify-between">
-                    <span>Instrument Dossier</span>
-                    <Scale size={13} className="text-slate-400" />
+                <div className="space-y-3 bg-slate-50 p-4 rounded border border-slate-200">
+                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-[11px] border-b pb-1">
+                    Instrument Details
                   </h4>
-                  <div className="grid grid-cols-3 gap-y-2 gap-x-1 text-slate-700">
-                    <span className="text-slate-500 font-medium">Instrument Type:</span>
-                    <span className="col-span-2 font-semibold text-slate-900">
+                  <div className="grid grid-cols-3 gap-1">
+                    <span className="text-slate-500">Instrument Type:</span>
+                    <span className="col-span-2 font-semibold text-slate-800">
                       {result.certificate.instrument?.type}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Manufacturer:</span>
-                    <span className="col-span-2 text-slate-800">
+                    <span className="text-slate-500">Manufacturer:</span>
+                    <span className="col-span-2 font-medium text-slate-800">
                       {result.certificate.instrument?.manufacturer}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Model Number:</span>
+                    <span className="text-slate-500">Model Number:</span>
                     <span className="col-span-2 font-mono text-slate-800">
                       {result.certificate.instrument?.model_number}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Serial Number:</span>
+                    <span className="text-slate-500">Serial Number:</span>
                     <span className="col-span-2 font-mono font-bold text-gov-navy">
                       {result.certificate.instrument?.serial_number}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Capacity:</span>
-                    <span className="col-span-2 font-mono tabular-nums text-slate-800">
+                    <span className="text-slate-500">Capacity:</span>
+                    <span className="col-span-2 font-medium text-slate-800">
                       {result.certificate.instrument?.capacity}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Accuracy Class:</span>
-                    <span className="col-span-2">
-                      <span className="inline-block bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/25 px-2 py-0.5 rounded-full font-bold text-[10px]">
-                        Class {result.certificate.instrument?.accuracy_class || 'III'}
-                      </span>
+                    <span className="text-slate-500">Accuracy Class:</span>
+                    <span className="col-span-2 font-semibold text-emerald-800">
+                      {result.certificate.instrument?.accuracy_class}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Premises Location:</span>
+                    <span className="text-slate-500">Location:</span>
                     <span className="col-span-2 text-slate-800">
                       {result.certificate.instrument?.location}
                     </span>
@@ -321,39 +269,38 @@ export const PublicVerifyPage = () => {
                 </div>
 
                 {/* Ownership & Authority Information */}
-                <div className="space-y-3 bg-slate-50/70 p-4 sm:p-5 rounded-xl border border-slate-200/90 shadow-2xs">
-                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-[11px] border-b border-slate-200 pb-1.5 flex items-center justify-between">
-                    <span>Verification Authority & Validity</span>
-                    <Building2 size={13} className="text-slate-400" />
+                <div className="space-y-3 bg-slate-50 p-4 rounded border border-slate-200">
+                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-[11px] border-b pb-1">
+                    Verification Authority & Validity
                   </h4>
-                  <div className="grid grid-cols-3 gap-y-2 gap-x-1 text-slate-700">
-                    <span className="text-slate-500 font-medium">Business Owner:</span>
-                    <span className="col-span-2 font-semibold text-slate-900">
+                  <div className="grid grid-cols-3 gap-1">
+                    <span className="text-slate-500">Business Name:</span>
+                    <span className="col-span-2 font-semibold text-slate-800">
                       {result.certificate.owner?.business_name}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Registered Address:</span>
-                    <span className="col-span-2 text-slate-800 truncate">
+                    <span className="text-slate-500">Business Address:</span>
+                    <span className="col-span-2 text-slate-800">
                       {result.certificate.owner?.location || 'Registered Commercial Premises'}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Verifying Agency:</span>
+                    <span className="text-slate-500">Verifying Agency:</span>
                     <span className="col-span-2 font-medium text-slate-800">
                       {result.certificate.verifying_authority}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Inspector / LMO:</span>
+                    <span className="text-slate-500">Inspector / Verifier:</span>
                     <span className="col-span-2 font-semibold text-gov-navy">
                       {result.certificate.verifier_name}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Stamping Date:</span>
-                    <span className="col-span-2 font-mono tabular-nums font-bold text-slate-800">
+                    <span className="text-slate-500">Verification Date:</span>
+                    <span className="col-span-2 font-bold text-slate-800">
                       {result.certificate.verification_date}
                     </span>
 
-                    <span className="text-slate-500 font-medium">Valid Until:</span>
-                    <span className="col-span-2 font-mono tabular-nums font-bold text-emerald-800">
+                    <span className="text-slate-500">Valid Until:</span>
+                    <span className="col-span-2 font-bold text-amber-900">
                       {result.certificate.valid_until}
                     </span>
                   </div>
@@ -361,31 +308,12 @@ export const PublicVerifyPage = () => {
               </div>
 
               {/* Digital Signature & Integrity Block */}
-              <div className="bg-slate-50/90 p-4 rounded-xl border border-slate-200/90 text-[11px] space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5 font-bold text-slate-700">
-                    <Lock size={13} className="text-emerald-700" />
-                    <span>Cryptographic Digital Signature Digest (Live Ledger Verified)</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(result.certificate.digital_signature_hash, 'hash')}
-                    className="btn-tactile text-[11px] text-gov-blue hover:text-gov-navy font-semibold flex items-center space-x-1"
-                  >
-                    {copiedHash ? (
-                      <>
-                        <Check size={12} className="text-emerald-600" />
-                        <span className="text-emerald-600">Copied</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={12} />
-                        <span>Copy Digest</span>
-                      </>
-                    )}
-                  </button>
+              <div className="bg-slate-100 p-3.5 rounded border border-slate-200 text-[11px] space-y-1">
+                <div className="flex items-center space-x-1.5 font-bold text-slate-700">
+                  <Lock size={13} className="text-emerald-700" />
+                  <span>Cryptographic Digital Signature Digest (Live DB Lookup Verified)</span>
                 </div>
-                <div className="font-mono text-[10px] text-slate-600 break-all bg-white p-2.5 rounded-lg border border-slate-200 shadow-2xs leading-relaxed">
+                <div className="font-mono text-[10px] text-slate-600 break-all bg-white p-2 rounded border border-slate-200">
                   {result.certificate.digital_signature_hash}
                 </div>
               </div>

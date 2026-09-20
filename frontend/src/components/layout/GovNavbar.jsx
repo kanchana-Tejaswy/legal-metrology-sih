@@ -63,13 +63,13 @@ export const GovNavbar = () => {
   return (
     <nav className="bg-gov-navy text-white shadow-md border-b-2 border-amber-600 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-13">
+        <div className="flex items-center justify-between h-12">
           {/* Main Navigation Links */}
-          <div className="flex items-center space-x-1 sm:space-x-1.5">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <Link
               to="/"
-              className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition btn-tactile ${
-                isActive('/') ? 'bg-gov-blue text-amber-300 font-semibold ring-1 ring-amber-400/30' : 'hover:bg-gov-blue hover:text-white'
+              className={`px-3 py-1.5 rounded text-xs sm:text-sm font-medium transition ${
+                isActive('/') ? 'bg-gov-blue text-amber-300 font-semibold' : 'hover:bg-gov-blue hover:text-white'
               }`}
             >
               Home
@@ -77,8 +77,8 @@ export const GovNavbar = () => {
 
             <Link
               to="/about"
-              className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition btn-tactile ${
-                isActive('/about') ? 'bg-gov-blue text-amber-300 font-semibold ring-1 ring-amber-400/30' : 'hover:bg-gov-blue hover:text-white'
+              className={`px-3 py-1.5 rounded text-xs sm:text-sm font-medium transition ${
+                isActive('/about') ? 'bg-gov-blue text-amber-300 font-semibold' : 'hover:bg-gov-blue hover:text-white'
               }`}
             >
               About
@@ -86,8 +86,8 @@ export const GovNavbar = () => {
 
             <Link
               to="/services"
-              className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium transition btn-tactile ${
-                isActive('/services') ? 'bg-gov-blue text-amber-300 font-semibold ring-1 ring-amber-400/30' : 'hover:bg-gov-blue hover:text-white'
+              className={`px-3 py-1.5 rounded text-xs sm:text-sm font-medium transition ${
+                isActive('/services') ? 'bg-gov-blue text-amber-300 font-semibold' : 'hover:bg-gov-blue hover:text-white'
               }`}
             >
               Services
@@ -95,8 +95,8 @@ export const GovNavbar = () => {
 
             <Link
               to="/verify"
-              className={`px-3 py-1.5 rounded-md text-xs sm:text-sm font-medium flex items-center space-x-1.5 transition btn-tactile ${
-                isActive('/verify') ? 'bg-gov-blue text-amber-300 font-semibold ring-1 ring-amber-400/30' : 'hover:bg-gov-blue hover:text-white'
+              className={`px-3 py-1.5 rounded text-xs sm:text-sm font-medium flex items-center space-x-1 transition ${
+                isActive('/verify') ? 'bg-gov-blue text-amber-300 font-semibold' : 'hover:bg-gov-blue hover:text-white'
               }`}
             >
               <ShieldCheck size={15} className="text-emerald-400" />
@@ -107,12 +107,12 @@ export const GovNavbar = () => {
             {user && (
               <Link
                 to={getDashboardPath()}
-                className={`hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs sm:text-sm font-semibold transition btn-tactile ${
+                className={`hidden md:flex items-center space-x-1 px-3 py-1.5 rounded text-xs sm:text-sm font-semibold transition ${
                   location.pathname.startsWith('/owner') ||
                   location.pathname.startsWith('/admin') ||
                   location.pathname.startsWith('/lmo') ||
                   location.pathname.startsWith('/gatc')
-                    ? 'bg-amber-600 text-white shadow-2xs'
+                    ? 'bg-amber-600 text-white shadow-xs'
                     : 'bg-gov-ashoka/80 hover:bg-gov-ashoka text-white'
                 }`}
               >
@@ -131,39 +131,38 @@ export const GovNavbar = () => {
                 {/* User Profile Dropdown */}
                 <div className="relative">
                   <button
-                    type="button"
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center space-x-2 bg-gov-blue/90 hover:bg-slate-800 px-2.5 py-1.5 rounded-lg text-xs border border-slate-700/80 transition btn-tactile"
+                    className="flex items-center space-x-2 bg-gov-blue hover:bg-slate-800 px-2.5 py-1.5 rounded text-xs border border-slate-700 transition"
                   >
-                    <div className="w-6 h-6 rounded-md bg-slate-700 flex items-center justify-center text-amber-300 font-bold text-xs">
+                    <div className="w-6 h-6 rounded bg-slate-700 flex items-center justify-center text-amber-300 font-bold">
                       {user.full_name?.[0] || 'U'}
                     </div>
                     <div className="hidden lg:block text-left leading-tight">
                       <div className="font-semibold text-white truncate max-w-[130px]">{user.full_name}</div>
-                      <div className="text-[10px] text-amber-300 font-medium font-mono">{role}</div>
+                      <div className="text-[10px] text-amber-300 font-medium">{role}</div>
                     </div>
                     <ChevronDown size={14} className="text-slate-400" />
                   </button>
 
                   {userDropdownOpen && (
                     <div
-                      className="absolute right-0 mt-2 w-64 bg-white rounded-xl border border-slate-200/90 shadow-elevated py-1.5 text-slate-800 z-50 divide-y divide-slate-100 animate-modal-content"
+                      className="absolute right-0 mt-2 w-64 bg-white rounded border border-slate-300 shadow-xl py-1 text-slate-800 z-50 divide-y divide-slate-100"
                       onClick={() => setUserDropdownOpen(false)}
                     >
-                      <div className="px-4 py-3 bg-slate-50/90">
+                      <div className="px-4 py-2.5 bg-slate-50">
                         <div className="font-bold text-xs text-gov-navy">{user.full_name}</div>
-                        <div className="text-[11px] text-slate-500 font-mono">{user.email}</div>
-                        <div className="mt-1.5 flex items-center gap-1.5">
-                          <span className="text-[10px] bg-gov-navy text-white px-2 py-0.5 rounded-md font-semibold">
+                        <div className="text-[11px] text-slate-500">{user.email}</div>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className="text-[10px] bg-gov-navy text-white px-2 py-0.5 rounded font-semibold">
                             {getRoleLabel()}
                           </span>
                           <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                               user.status === 'APPROVED'
-                                ? 'bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/20'
+                                ? 'bg-emerald-100 text-emerald-800'
                                 : user.status === 'PENDING'
-                                ? 'bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20'
-                                : 'bg-red-50 text-red-800 ring-1 ring-inset ring-red-600/20'
+                                ? 'bg-amber-100 text-amber-800'
+                                : 'bg-red-100 text-red-800'
                             }`}
                           >
                             {user.status}
@@ -174,7 +173,7 @@ export const GovNavbar = () => {
                       <div className="py-1 text-xs">
                         <Link
                           to={getDashboardPath()}
-                          className="flex items-center space-x-2 px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
+                          className="flex items-center space-x-2 px-4 py-2 hover:bg-slate-100 text-slate-700"
                         >
                           <LayoutDashboard size={14} />
                           <span>Official Dashboard</span>

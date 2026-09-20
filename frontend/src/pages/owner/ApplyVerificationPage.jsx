@@ -138,40 +138,39 @@ export const ApplyVerificationPage = () => {
         <span>Back to Instruments</span>
       </Link>
 
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-card overflow-hidden">
+      <div className="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
         {/* Header */}
-        <div className="bg-gov-navy text-white p-5 sm:p-6 border-b-2 border-amber-500">
-          <div className="text-[11px] font-bold text-amber-300 uppercase tracking-wider">
+        <div className="bg-gov-navy text-white p-5 border-b-2 border-amber-500">
+          <div className="text-xs font-semibold text-amber-300 uppercase tracking-wider">
             Department of Legal Metrology • Form LM-A
           </div>
-          <h2 className="text-xl font-bold font-serif tracking-tight mt-0.5">
+          <h2 className="text-xl font-bold font-serif">
             Apply for Verification / Re-Verification
           </h2>
-          <p className="text-xs text-slate-300 mt-1">
+          <p className="text-xs text-slate-300 mt-0.5">
             Statutory physical verification for legal compliance under Section 24 of the Legal Metrology Act, 2009.
           </p>
         </div>
 
         {error && (
-          <div className="m-5 p-3.5 bg-red-50 border border-red-200 border-l-4 border-l-red-600 rounded-lg text-xs text-red-800 flex items-start space-x-2.5">
+          <div className="m-5 p-3 bg-red-50 border-l-4 border-red-600 text-xs text-red-800 flex items-start space-x-2">
             <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
-            <div className="font-medium">{error}</div>
+            <div>{error}</div>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {/* Section 1: Verification Type */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b border-slate-200 pb-1.5 flex items-center justify-between">
-              <span>1. Verification Category</span>
-              <span className="text-[11px] font-normal text-slate-500 lowercase">Choose statutory category</span>
+            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
+              1. Verification Category
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <label
-                className={`btn-tactile p-4 rounded-xl border text-xs cursor-pointer flex items-start space-x-3 transition ${
+                className={`p-3 rounded border text-xs cursor-pointer flex items-start space-x-3 transition ${
                   formData.application_type === 'NEW'
-                    ? 'border-gov-navy bg-blue-50/70 ring-1 ring-gov-navy shadow-xs'
-                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
+                    ? 'border-gov-navy bg-blue-50/70'
+                    : 'border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 <input
@@ -180,21 +179,21 @@ export const ApplyVerificationPage = () => {
                   value="NEW"
                   checked={formData.application_type === 'NEW'}
                   onChange={(e) => setFormData({ ...formData, application_type: e.target.value })}
-                  className="mt-0.5 text-gov-navy focus:ring-gov-navy h-4 w-4"
+                  className="mt-0.5 text-gov-navy"
                 />
                 <div>
                   <div className="font-bold text-gov-navy">Initial Verification (New Stamping)</div>
-                  <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  <div className="text-[11px] text-slate-500">
                     For newly installed instruments prior to first commercial deployment.
                   </div>
                 </div>
               </label>
 
               <label
-                className={`btn-tactile p-4 rounded-xl border text-xs cursor-pointer flex items-start space-x-3 transition ${
+                className={`p-3 rounded border text-xs cursor-pointer flex items-start space-x-3 transition ${
                   formData.application_type === 'RE_VERIFICATION'
-                    ? 'border-gov-navy bg-blue-50/70 ring-1 ring-gov-navy shadow-xs'
-                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50/70'
+                    ? 'border-gov-navy bg-blue-50/70'
+                    : 'border-slate-300 hover:bg-slate-50'
                 }`}
               >
                 <input
@@ -203,11 +202,11 @@ export const ApplyVerificationPage = () => {
                   value="RE_VERIFICATION"
                   checked={formData.application_type === 'RE_VERIFICATION'}
                   onChange={(e) => setFormData({ ...formData, application_type: e.target.value })}
-                  className="mt-0.5 text-gov-navy focus:ring-gov-navy h-4 w-4"
+                  className="mt-0.5 text-gov-navy"
                 />
                 <div>
                   <div className="font-bold text-gov-navy">Periodic Re-Verification</div>
-                  <div className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
+                  <div className="text-[11px] text-slate-500">
                     For instruments with expiring or expired certificates requiring re-stamping.
                   </div>
                 </div>
@@ -217,17 +216,17 @@ export const ApplyVerificationPage = () => {
 
           {/* Section 2: Instrument Selection */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b border-slate-200 pb-1.5">
+            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
               2. Select Registered Instrument
             </h3>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 mb-1">
                 Choose Instrument from Your Inventory *
               </label>
               {instruments.length === 0 ? (
-                <div className="text-xs text-amber-800 bg-amber-50 p-4 rounded-xl border border-amber-300">
+                <div className="text-xs text-amber-800 bg-amber-50 p-3 rounded border border-amber-300">
                   No instruments registered yet.{' '}
-                  <Link to="/owner/instruments/register" className="font-bold underline text-amber-900">
+                  <Link to="/owner/instruments/register" className="font-bold underline">
                     Register an instrument first →
                   </Link>
                 </div>
@@ -235,7 +234,7 @@ export const ApplyVerificationPage = () => {
                 <select
                   value={formData.instrument_id}
                   onChange={handleInstrumentChange}
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm border border-slate-300 rounded-lg focus:ring-1 focus:ring-gov-navy focus:border-gov-navy bg-slate-50/50 focus:bg-white transition"
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy bg-white"
                   required
                 >
                   {instruments.map((inst) => (
@@ -249,23 +248,23 @@ export const ApplyVerificationPage = () => {
 
             {/* Selected Instrument Detail Card */}
             {selectedInst && (
-              <div className="bg-slate-50/80 p-4 rounded-xl border border-slate-200/90 text-xs grid grid-cols-2 sm:grid-cols-4 gap-3 shadow-2xs">
+              <div className="bg-slate-50 p-3.5 rounded border border-slate-200 text-xs grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <div>
-                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Manufacturer</span>
-                  <span className="font-semibold text-slate-900">{selectedInst.manufacturer}</span>
+                  <span className="text-slate-500 text-[10px] block">Manufacturer</span>
+                  <span className="font-semibold text-slate-800">{selectedInst.manufacturer}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Serial Number</span>
+                  <span className="text-slate-500 text-[10px] block">Serial Number</span>
                   <span className="font-mono font-bold text-gov-navy">{selectedInst.serial_number}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Capacity</span>
-                  <span className="font-mono tabular-nums font-semibold text-slate-900">
+                  <span className="text-slate-500 text-[10px] block">Capacity</span>
+                  <span className="font-semibold text-slate-800">
                     {selectedInst.max_capacity} {selectedInst.unit}
                   </span>
                 </div>
                 <div>
-                  <span className="text-slate-500 text-[10px] uppercase font-semibold block">Premises</span>
+                  <span className="text-slate-500 text-[10px] block">Location</span>
                   <span className="text-slate-700 truncate block">{selectedInst.location}</span>
                 </div>
               </div>
@@ -274,12 +273,12 @@ export const ApplyVerificationPage = () => {
 
           {/* Section 3: Preferred Inspection Schedule & Remarks */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b border-slate-200 pb-1.5">
+            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
               3. Inspection Scheduling Preference & Remarks
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Preferred Inspection Date *
                 </label>
                 <input
@@ -288,20 +287,20 @@ export const ApplyVerificationPage = () => {
                   value={formData.preferred_date}
                   onChange={(e) => setFormData({ ...formData, preferred_date: e.target.value })}
                   min={new Date().toISOString().split('T')[0]}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-gov-navy focus:border-gov-navy bg-slate-50/50 focus:bg-white transition"
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Preferred Time Slot *
                 </label>
                 <select
                   name="preferred_time"
                   value={formData.preferred_time}
                   onChange={(e) => setFormData({ ...formData, preferred_time: e.target.value })}
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-gov-navy focus:border-gov-navy bg-slate-50/50 focus:bg-white transition"
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy bg-white"
                 >
                   <option value="10:00 AM">Morning Session (10:00 AM - 01:00 PM)</option>
                   <option value="02:00 PM">Afternoon Session (02:00 PM - 05:00 PM)</option>
@@ -310,7 +309,7 @@ export const ApplyVerificationPage = () => {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 mb-1">
                   Applicant Remarks / Access Instructions
                 </label>
                 <textarea
@@ -318,7 +317,7 @@ export const ApplyVerificationPage = () => {
                   value={formData.remarks}
                   onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
                   placeholder="Provide any specific location details, gate pass requirements, or contact person on-site"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded-lg focus:ring-1 focus:ring-gov-navy focus:border-gov-navy bg-slate-50/50 focus:bg-white transition"
+                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
                 />
               </div>
             </div>
@@ -326,13 +325,13 @@ export const ApplyVerificationPage = () => {
 
           {/* Section 4: Document Attachments */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b border-slate-200 pb-1.5">
+            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
               4. Supporting Documents (Invoice, Model Approval, Previous Certificate)
             </h3>
-            <div className="border-2 border-dashed border-slate-300 rounded-xl p-5 text-center hover:border-gov-navy hover:bg-slate-50/50 transition">
-              <Upload size={22} className="text-slate-400 mx-auto mb-1.5" />
-              <label className="cursor-pointer text-xs font-semibold text-gov-blue hover:text-gov-navy">
-                <span>Attach Relevant Document (PDF, JPG, PNG)</span>
+            <div className="border-2 border-dashed border-slate-300 rounded p-4 text-center hover:border-gov-navy transition">
+              <Upload size={20} className="text-slate-400 mx-auto mb-1" />
+              <label className="cursor-pointer text-xs font-semibold text-gov-blue hover:underline">
+                <span>Attach Relevant Document</span>
                 <input
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
@@ -340,21 +339,17 @@ export const ApplyVerificationPage = () => {
                   className="hidden"
                 />
               </label>
-              <div className="text-[10px] text-slate-400 mt-1">Single file size limit: 10MB</div>
             </div>
 
             {documents.length > 0 && (
-              <div className="space-y-1.5">
+              <div className="space-y-1">
                 {documents.map((d, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-200"
+                    className="flex items-center justify-between text-xs bg-slate-50 p-2 rounded border border-slate-200"
                   >
-                    <span className="font-medium text-slate-800">{d.name} ({d.size})</span>
-                    <span className="text-emerald-700 font-semibold text-[11px] flex items-center space-x-1">
-                      <CheckCircle2 size={13} />
-                      <span>Ready</span>
-                    </span>
+                    <span className="font-medium text-slate-700">{d.name} ({d.size})</span>
+                    <span className="text-emerald-700 font-semibold">Attached</span>
                   </div>
                 ))}
               </div>
@@ -365,7 +360,7 @@ export const ApplyVerificationPage = () => {
             <button
               type="submit"
               disabled={loading || instruments.length === 0}
-              className="btn-tactile w-full bg-gov-navy hover:bg-gov-blue active:bg-gov-navy-light text-white py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider shadow-sm transition disabled:opacity-50"
+              className="w-full bg-gov-navy hover:bg-gov-blue text-white py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wider shadow transition disabled:opacity-50"
             >
               {loading ? 'Submitting Application...' : 'Submit Verification Application'}
             </button>
