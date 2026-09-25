@@ -154,38 +154,42 @@ export const RegisterPage = () => {
 
   if (submittedSuccess) {
     return (
-      <div className="max-w-xl mx-auto my-12 px-4">
-        <div className="bg-white rounded border border-slate-300 shadow-xl p-6 sm:p-8 text-center space-y-4">
-          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-700">
+      <div className="max-w-xl mx-auto my-12 px-4 animate-scale-in">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-elevated p-6 sm:p-8 text-center space-y-5 relative overflow-hidden">
+          <div className="absolute -top-16 -right-16 w-36 h-36 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center mx-auto text-amber-600 ring-8 ring-amber-50/60 transition-transform duration-300 hover:scale-105">
             <CheckCircle size={36} />
           </div>
 
-          <h2 className="text-xl font-bold font-serif text-gov-navy">
-            Registration Submitted Successfully
-          </h2>
+          <div>
+            <h2 className="text-xl font-bold font-serif text-gov-navy tracking-tight">
+              Registration Submitted Successfully
+            </h2>
+            <p className="text-xs text-slate-500 mt-1">Official Legal Metrology Stakeholder Enrollment</p>
+          </div>
 
-          <div className="bg-amber-50 border border-amber-300 rounded p-4 text-xs text-amber-900 text-left space-y-2">
-            <div className="font-bold flex items-center space-x-1.5 text-amber-800">
-              <ShieldAlert size={16} />
+          <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl p-4 text-xs text-amber-900 text-left space-y-2.5 shadow-subtle">
+            <div className="font-bold flex items-center space-x-2 text-amber-900">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
               <span>Statutory Review Status: PENDING VERIFICATION</span>
             </div>
-            <p className="leading-relaxed">
-              Your business stakeholder account for <strong>&ldquo;{formData.business_name}&rdquo;</strong> has been registered.
+            <p className="leading-relaxed text-slate-700">
+              Your business stakeholder account for <strong className="text-slate-900">&ldquo;{formData.business_name}&rdquo;</strong> has been registered.
               In accordance with Legal Metrology statutory regulations, your account is currently <strong>PENDING</strong> review and approval by the Department Administrator.
             </p>
-            <p className="leading-relaxed text-[11px] text-amber-800">
+            <p className="leading-relaxed text-[11px] text-amber-800 bg-amber-100/50 p-2 rounded-lg border border-amber-200/60">
               You will not be able to register instruments or submit verification applications until an authorized officer validates your trade license and premises details.
             </p>
           </div>
 
-          <div className="text-xs text-slate-600">
+          <div className="text-xs text-slate-500">
             A confirmation has been logged in the department registry. You may log in to track your approval status.
           </div>
 
           <div className="pt-2 flex justify-center gap-3">
             <Link
               to="/login"
-              className="bg-gov-navy hover:bg-gov-blue text-white px-5 py-2 rounded text-xs font-semibold flex items-center space-x-1.5 transition"
+              className="btn-tactile shimmer-sweep bg-gradient-to-r from-gov-navy to-slate-900 hover:from-gov-blue hover:to-gov-navy text-white px-6 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-md hover:shadow-lg transition-all duration-200"
             >
               <span>Go to Sign In</span>
               <ArrowRight size={14} />
@@ -197,46 +201,54 @@ export const RegisterPage = () => {
   }
 
   return (
-    <div className="max-w-3xl mx-auto my-8 px-4">
-      <div className="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
+    <div className="max-w-3xl mx-auto my-4 sm:my-8 px-3 sm:px-4 animate-fade-up">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-elevated overflow-hidden transition-all duration-300">
         {/* Header */}
-        <div className="bg-gov-navy text-white p-5 border-b-2 border-amber-500">
-          <div className="text-xs font-semibold text-amber-300 uppercase tracking-wider">
-            Official Stakeholder Enrollment Form
+        <div className="relative bg-gradient-to-br from-gov-navy via-slate-900 to-gov-navy text-white p-5 sm:p-7 border-b-2 border-amber-500 overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="relative z-10">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-[10px] sm:text-[11px] font-semibold text-amber-300 tracking-wide mb-2 backdrop-blur-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              Official Stakeholder Enrollment Form
+            </div>
+            <h2 className="text-lg sm:text-2xl font-bold font-serif text-white tracking-tight">
+              Instrument Owner / Commercial Enterprise Registration
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300/90 mt-1 max-w-xl leading-relaxed">
+              Mandatory statutory registration for commercial users, traders, retailers, and industrial users of weighing &amp; measuring instruments.
+            </p>
           </div>
-          <h2 className="text-xl font-bold font-serif">
-            Instrument Owner / Business Owner Registration
-          </h2>
-          <p className="text-xs text-slate-300 mt-1">
-            Mandatory statutory registration for commercial users, traders, retailers, and industrial users of weighing &amp; measuring instruments.
-          </p>
         </div>
 
         {/* Notice */}
-        <div className="bg-blue-50 border-b border-blue-200 px-5 py-3 text-xs text-slate-700 flex items-start space-x-2">
+        <div className="bg-sky-50/70 border-b border-sky-100 px-4 sm:px-6 py-3 sm:py-3.5 text-xs text-slate-700 flex items-start space-x-2.5">
           <Building2 size={16} className="text-gov-navy flex-shrink-0 mt-0.5" />
           <div>
-            <strong>Administrative Notice: </strong> All new registrations require review and clearance by the Department Administrator before instruments can be submitted for verification.
+            <strong className="text-slate-900 font-semibold">Administrative Notice: </strong>
+            All new registrations require review and clearance by the Department Administrator before instruments can be submitted for verification.
           </div>
         </div>
 
         {error && (
-          <div className="m-5 p-3 bg-red-50 border-l-4 border-red-600 text-xs text-red-800 flex items-start space-x-2">
-            <AlertCircle size={16} className="text-red-600 flex-shrink-0 mt-0.5" />
-            <div>{error}</div>
+          <div className="m-4 sm:m-6 p-3.5 sm:p-4 bg-rose-50 border-l-4 border-rose-600 rounded-r-xl text-xs text-rose-800 flex items-start space-x-2.5 animate-scale-in">
+            <AlertCircle size={16} className="text-rose-600 flex-shrink-0 mt-0.5" />
+            <div className="font-medium">{error}</div>
           </div>
         )}
 
         {/* Registration Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-8 space-y-6 sm:space-y-7">
           {/* Section 1: Applicant Details */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
-              1. Authorized Applicant Information
-            </h3>
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <span className="w-5 h-5 rounded-full bg-gov-navy/10 text-gov-navy text-[11px] font-bold flex items-center justify-center">1</span>
+              <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider">
+                Authorized Applicant Information
+              </h3>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Full Name of Authorized Person *
                 </label>
                 <input
@@ -245,13 +257,13 @@ export const RegisterPage = () => {
                   value={formData.full_name}
                   onChange={handleChange}
                   placeholder="e.g. Anand Kumar"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Contact Phone / Mobile Number *
                 </label>
                 <input
@@ -260,13 +272,13 @@ export const RegisterPage = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   placeholder="+91 98200 12345"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                   required
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Email Address (Username for Login) *
                 </label>
                 <input
@@ -275,7 +287,7 @@ export const RegisterPage = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="owner@mybusiness.com"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                   required
                 />
               </div>
@@ -284,12 +296,15 @@ export const RegisterPage = () => {
 
           {/* Section 2: Business & Premises Details */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
-              2. Commercial Establishment / Enterprise Details
-            </h3>
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <span className="w-5 h-5 rounded-full bg-gov-navy/10 text-gov-navy text-[11px] font-bold flex items-center justify-center">2</span>
+              <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider">
+                Commercial Establishment / Enterprise Details
+              </h3>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Registered Business Name / Trade Name *
                 </label>
                 <input
@@ -298,13 +313,13 @@ export const RegisterPage = () => {
                   value={formData.business_name}
                   onChange={handleChange}
                   placeholder="e.g. Metro Retail Supermarket Ltd."
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                   required
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Business Installation Address *
                 </label>
                 <textarea
@@ -313,15 +328,15 @@ export const RegisterPage = () => {
                   value={formData.business_address}
                   onChange={handleChange}
                   placeholder="Shop/Unit No., Commercial Complex, Street, Landmark"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200 resize-none"
                   required
                 />
               </div>
 
               {/* State — Searchable Dropdown */}
               <div>
-                <label htmlFor="reg-state" className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                  <MapPin size={11} className="text-gov-navy" />
+                <label htmlFor="reg-state" className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                  <MapPin size={12} className="text-gov-navy" />
                   State *
                 </label>
                 <SearchableSelect
@@ -337,8 +352,8 @@ export const RegisterPage = () => {
 
               {/* District — Cascading Searchable Dropdown */}
               <div>
-                <label htmlFor="reg-district" className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                  <MapPin size={11} className="text-gov-navy" />
+                <label htmlFor="reg-district" className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1">
+                  <MapPin size={12} className="text-gov-navy" />
                   District / Ward *
                   {!formData.state && (
                     <span className="text-[10px] text-slate-400 font-normal ml-1">(select State first)</span>
@@ -362,52 +377,58 @@ export const RegisterPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Pincode *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Pincode *</label>
                 <input
                   type="text"
                   name="pincode"
                   value={formData.pincode}
                   onChange={handleChange}
                   placeholder="e.g. 400053"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Trade License No.</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Trade License No.</label>
                 <input
                   type="text"
                   name="trade_license_no"
                   value={formData.trade_license_no}
                   onChange={handleChange}
                   placeholder="e.g. TRD-MUM-2024-9912"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">GSTIN (Optional)</label>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">GSTIN (Optional)</label>
                 <input
                   type="text"
                   name="gstin"
                   value={formData.gstin}
                   onChange={handleChange}
                   placeholder="e.g. 27AABCU9603R1ZM"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy uppercase"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200 uppercase"
                 />
               </div>
             </div>
           </div>
 
           {/* Section 3: Document Upload */}
-          <div className="space-y-3">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
-              3. Supporting Documents (Premises Lease, Trade License, Shop Act)
-            </h3>
-            <div className="border-2 border-dashed border-slate-300 rounded p-4 text-center hover:border-gov-navy transition">
-              <Upload size={24} className="text-slate-400 mx-auto mb-1" />
-              <label className="cursor-pointer text-xs font-semibold text-gov-blue hover:underline">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <span className="w-5 h-5 rounded-full bg-gov-navy/10 text-gov-navy text-[11px] font-bold flex items-center justify-center">3</span>
+              <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider">
+                Supporting Documents (Premises Lease, Trade License, Shop Act)
+              </h3>
+            </div>
+            
+            <div className="group border-2 border-dashed border-slate-200 hover:border-gov-navy/40 rounded-2xl p-5 text-center bg-slate-50/40 hover:bg-slate-50/80 transition-all duration-200 cursor-pointer">
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center mx-auto mb-2 text-slate-400 group-hover:text-gov-navy group-hover:scale-110 transition-all duration-200 shadow-subtle">
+                <Upload size={18} />
+              </div>
+              <label className="cursor-pointer text-xs font-semibold text-gov-blue hover:text-gov-navy transition">
                 <span>Upload PDF Document / Certificate</span>
                 <input
                   type="file"
@@ -416,18 +437,21 @@ export const RegisterPage = () => {
                   className="hidden"
                 />
               </label>
-              <div className="text-[10px] text-slate-500 mt-1">Accepted: PDF, JPG, PNG up to 5MB</div>
+              <div className="text-[10px] text-slate-400 mt-1">Accepted: PDF, JPG, PNG up to 5MB</div>
             </div>
 
             {documents.length > 0 && (
-              <div className="space-y-1">
+              <div className="space-y-1.5 animate-fade-in">
                 {documents.map((d, idx) => (
                   <div
                     key={idx}
-                    className="flex items-center justify-between text-xs bg-slate-50 p-2 rounded border border-slate-200"
+                    className="flex items-center justify-between text-xs bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/80 shadow-subtle"
                   >
-                    <span className="font-medium text-slate-700">{d.name} ({d.size})</span>
-                    <span className="text-emerald-700 font-semibold">Ready</span>
+                    <div className="flex items-center gap-2">
+                      <FileCheck size={14} className="text-emerald-600" />
+                      <span className="font-medium text-slate-700">{d.name} ({d.size})</span>
+                    </div>
+                    <span className="text-[11px] text-emerald-700 font-semibold px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200">Ready</span>
                   </div>
                 ))}
               </div>
@@ -436,52 +460,56 @@ export const RegisterPage = () => {
 
           {/* Section 4: Security Password */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider border-b pb-1">
-              4. Account Security Password
-            </h3>
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <span className="w-5 h-5 rounded-full bg-gov-navy/10 text-gov-navy text-[11px] font-bold flex items-center justify-center">4</span>
+              <h3 className="text-xs font-bold text-gov-navy uppercase tracking-wider">
+                Account Security Password
+              </h3>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Create Password *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Create Password *</label>
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••••••"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Confirm Password *</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Confirm Password *</label>
                 <input
                   type="password"
                   name="confirm_password"
                   value={formData.confirm_password}
                   onChange={handleChange}
                   placeholder="••••••••••••"
-                  className="w-full px-3 py-2 text-xs border border-slate-300 rounded focus:ring-1 focus:ring-gov-navy"
+                  className="w-full px-3.5 py-2.5 text-xs bg-slate-50/50 hover:bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-gov-navy/20 focus:border-gov-navy focus:bg-white transition-all duration-200"
                   required
                 />
               </div>
             </div>
           </div>
 
-          <div className="pt-3 border-t border-slate-200">
+          <div className="pt-2">
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gov-navy hover:bg-gov-blue text-white py-3 rounded text-xs sm:text-sm font-bold uppercase tracking-wider shadow transition disabled:opacity-50"
+              className="btn-tactile shimmer-sweep w-full bg-gradient-to-r from-gov-navy via-slate-900 to-gov-navy hover:from-gov-blue hover:to-gov-navy text-white py-3.5 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {loading ? 'Submitting Registration...' : 'Submit Stakeholder Registration for Approval'}
+              <span>{loading ? 'Submitting Registration...' : 'Submit Stakeholder Registration for Approval'}</span>
+              <ArrowRight size={16} />
             </button>
           </div>
         </form>
 
-        <div className="p-3 bg-slate-100 text-center border-t border-slate-200 text-xs">
+        <div className="p-4 bg-slate-50/80 text-center border-t border-slate-100 text-xs text-slate-600">
           Already registered?{' '}
-          <Link to="/login" className="font-bold text-gov-blue hover:underline">
+          <Link to="/login" className="font-bold text-gov-navy hover:text-gov-blue transition hover:underline">
             Sign In Here
           </Link>
         </div>
@@ -489,4 +517,5 @@ export const RegisterPage = () => {
     </div>
   );
 };
+
 

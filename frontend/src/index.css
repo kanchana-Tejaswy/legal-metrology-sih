@@ -4,24 +4,38 @@
 
 @layer base {
   :root {
-    --gov-navy: #002147;
-    --gov-blue: #1b365d;
-    --gov-ashoka: #0b4f6c;
-    --gov-saffron: #d97706;
-    --gov-green: #15803d;
-    --gov-border: #cbd5e1;
-    --gov-bg: #f8fafc;
+    --gov-navy: #0A2540;
+    --gov-dark: #051329;
+    --gov-deep: #030E1F;
+    --gov-blue: #1E40AF;
+    --gov-ashoka: #0369A1;
+    --gov-saffron: #D97706;
+    --gov-amber: #F59E0B;
+    --gov-green: #059669;
+    --gov-border: #E2E8F0;
+    --gov-bg: #F8FAFC;
+    --font-heading: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
   }
 
   body {
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: #F8FAFC;
+    color: #0F172A;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    letter-spacing: -0.02em;
   }
 }
 
 /* Accessibility Font Scalers */
 html.font-scale-sm {
-  font-size: 14px;
+  font-size: 14.5px;
 }
 html.font-scale-md {
   font-size: 16px;
@@ -30,21 +44,172 @@ html.font-scale-lg {
   font-size: 18px;
 }
 
-/* Government Indian Tricolor Accent Strip */
+/* Custom Refined Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F1F5F9;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Tactile Click Utility (Stripe/Linear Feel - 0.96 scale) */
+.btn-tactile {
+  transition-property: transform, background-color, border-color, color, box-shadow, opacity;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 200ms;
+}
+.btn-tactile:active {
+  transform: scale(0.96);
+}
+
+/* Eye-pleasing Card Hover Elevation (Smooth float + subtle glow) */
+.card-hover-effect {
+  transition-property: transform, box-shadow, border-color;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 250ms;
+}
+.card-hover-effect:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.1), 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+}
+
+/* Stagger Entrance Helpers */
+.stagger-1 {
+  animation-delay: 50ms;
+}
+.stagger-2 {
+  animation-delay: 110ms;
+}
+.stagger-3 {
+  animation-delay: 170ms;
+}
+.stagger-4 {
+  animation-delay: 230ms;
+}
+.stagger-5 {
+  animation-delay: 290ms;
+}
+.stagger-6 {
+  animation-delay: 350ms;
+}
+
+/* Shimmer Highlight Sweep */
+.shimmer-sweep {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer-sweep::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  transform: translateX(-150%);
+  transition: transform 0.6s ease-in-out;
+}
+.shimmer-sweep:hover::after {
+  transform: translateX(250%);
+}
+
+/* Glassmorphism & Frosted Effects */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.glass-dark {
+  background: rgba(10, 37, 64, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Modal Animations */
+@keyframes modalBackdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalContentPop {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-modal-backdrop {
+  animation: modalBackdropFade 180ms ease-out forwards;
+}
+
+.animate-modal-content {
+  animation: modalContentPop 240ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Reduced Motion Compliance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .card-hover-effect:hover {
+    transform: none !important;
+  }
+}
+
+/* Skeleton Pulse Shimmer */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.skeleton-shimmer {
+  animation: skeletonPulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Official Government Indian Tricolor Accent Strip */
 .gov-tricolor-strip {
   height: 4px;
   background: linear-gradient(
     to right,
-    #ff9933 0%,
-    #ff9933 33.33%,
-    #ffffff 33.33%,
-    #ffffff 66.66%,
+    #FF9933 0%,
+    #FF9933 33.33%,
+    #FFFFFF 33.33%,
+    #FFFFFF 66.66%,
     #138808 66.66%,
     #138808 100%
   );
 }
 
-/* Official Government Certificate Styling */
+.gov-tricolor-glow {
+  box-shadow: 0 2px 10px rgba(255, 153, 51, 0.2), 0 2px 10px rgba(19, 136, 8, 0.2);
+}
+
+/* Official Government Certificate Print Styling */
 @media print {
   body * {
     visibility: hidden;
@@ -58,8 +223,9 @@ html.font-scale-lg {
     top: 0;
     width: 100%;
     margin: 0;
-    padding: 20px;
-    border: 3px double #002147;
+    padding: 24px;
+    border: 3px double #0A2540;
+    background: white !important;
   }
   .no-print {
     display: none !important;
@@ -67,39 +233,145 @@ html.font-scale-lg {
 }
 
 .official-stamp {
-  border: 2px dashed #002147;
-  border-radius: 4px;
-  background-color: #f0fdf4;
+  border: 2px dashed #0A2540;
+  border-radius: 8px;
+  background-color: #F0FDF4;
+}
+
+/* Sovereign Holographic Rainbow Prism Effect (1Cr Ultra-Luxury Level) */
+.hologram-prism {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(240, 249, 255, 0.9) 30%,
+    rgba(254, 243, 199, 0.85) 60%,
+    rgba(236, 253, 245, 0.95) 100%
+  );
+  border: 1px solid rgba(217, 119, 6, 0.3);
+}
+
+.hologram-prism::before {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 0deg at 50% 50%,
+    rgba(255, 0, 128, 0.08) 0deg,
+    rgba(0, 200, 255, 0.1) 72deg,
+    rgba(0, 255, 128, 0.08) 144deg,
+    rgba(255, 215, 0, 0.12) 216deg,
+    rgba(255, 0, 128, 0.08) 288deg,
+    rgba(0, 200, 255, 0.1) 360deg
+  );
+  animation: rotatePrism 12s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotatePrism {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Sovereign Golden Metallic Accent Gradient */
+.gold-metallic-gradient {
+  background: linear-gradient(135deg, #FDE68A 0%, #D97706 50%, #B45309 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-metallic-border {
+  border-image: linear-gradient(135deg, #FDE68A, #D97706, #78350F) 1;
+}
+
+/* Micro-Grid Pattern for Deep Navy Sovereign Canvas */
+.mesh-grid-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Laser Scan Line for Live Verification Card */
+@keyframes laserScan {
+  0% { top: 0%; opacity: 0; }
+  15% { opacity: 0.8; }
+  85% { opacity: 0.8; }
+  100% { top: 98%; opacity: 0; }
+}
+
+.laser-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #10B981, #34D399, transparent);
+  box-shadow: 0 0 12px 2px rgba(16, 185, 129, 0.6);
+  animation: laserScan 2.5s ease-in-out infinite;
+  pointer-events: none;
 }
 
 /* Structured government table styles */
 .gov-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .gov-table th {
-  background-color: #002147;
-  color: #ffffff;
+  background-color: #0A2540;
+  color: #FFFFFF;
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.75rem;
   letter-spacing: 0.05em;
-  padding: 0.75rem 1rem;
-  border-bottom: 2px solid #cbd5e1;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 2px solid #CBD5E1;
   text-align: left;
 }
 
 .gov-table td {
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid #E2E8F0;
   font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 120ms ease;
 }
 
-.gov-table tr:nth-child(even) {
-  background-color: #f8fafc;
+.gov-table tr:nth-child(even) td {
+  background-color: #F8FAFC;
 }
 
-.gov-table tr:hover {
-  background-color: #f1f5f9;
+.gov-table tr:hover td {
+  background-color: #F1F5F9;
 }
+
+/* Mobile Safe Area Insets (for Android Notch, Status Bar & Gesture Navigation) */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.mb-safe {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Momentum scrolling for touch containers */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Prevent unwanted horizontal overflow on mobile viewports */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+

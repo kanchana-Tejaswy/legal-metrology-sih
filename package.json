@@ -8,7 +8,9 @@
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
     "build": "cd frontend && npm install && npm run build",
-    "install:all": "cd backend && npm install && cd ../frontend && npm install"
+    "install:all": "cd backend && npm install && cd ../frontend && npm install",
+    "cap:sync": "cd frontend && npm run cap:sync",
+    "cap:open": "cd frontend && npm run cap:open"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.8",

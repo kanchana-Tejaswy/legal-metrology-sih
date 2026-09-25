@@ -249,11 +249,11 @@ export const MyCertificatesPage = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex justify-between items-center pt-2">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2">
               <Link
                 to={`/verify/${activeCert.id}`}
                 target="_blank"
-                className="text-xs text-gov-blue hover:underline flex items-center space-x-1"
+                className="text-xs text-gov-blue hover:underline flex items-center space-x-1 py-1"
               >
                 <span>Open Public Verification Page</span>
                 <ExternalLink size={12} />
@@ -261,7 +261,7 @@ export const MyCertificatesPage = () => {
 
               <button
                 onClick={handlePrint}
-                className="bg-gov-navy hover:bg-gov-blue text-white px-4 py-2 rounded text-xs font-semibold flex items-center space-x-1.5 transition"
+                className="w-full sm:w-auto bg-gov-navy hover:bg-gov-blue text-white px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center space-x-1.5 transition min-h-[40px] btn-tactile"
               >
                 <Printer size={15} />
                 <span>Print / Save as PDF</span>

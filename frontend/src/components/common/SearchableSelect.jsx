@@ -59,7 +59,11 @@ export const SearchableSelect = ({
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('touchstart', handleOutsideClick);
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('touchstart', handleOutsideClick);
+    };
   }, []);
 
   // Focus search input when dropdown opens
@@ -160,7 +164,7 @@ export const SearchableSelect = ({
         aria-haspopup="listbox"
         aria-expanded={open}
         className={[
-          'w-full px-3 py-2 text-xs border rounded flex items-center justify-between text-left transition',
+          'w-full px-3.5 py-2.5 sm:py-2 text-xs border rounded-xl flex items-center justify-between text-left transition min-h-[42px]',
           'focus:outline-none focus:ring-1 focus:ring-gov-navy',
           isDisabledState
             ? 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'
@@ -175,10 +179,10 @@ export const SearchableSelect = ({
           {value && !isDisabledState && (
             <span
               onClick={handleClear}
-              className="text-slate-400 hover:text-slate-700 p-0.5 rounded"
+              className="text-slate-400 hover:text-slate-700 p-1 rounded"
               title="Clear selection"
             >
-              <X size={11} />
+              <X size={12} />
             </span>
           )}
           {loading
@@ -191,13 +195,13 @@ export const SearchableSelect = ({
       {/* Dropdown panel */}
       {open && (
         <div
-          className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded shadow-lg overflow-hidden"
+          className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden animate-scale-in"
           role="listbox"
         >
           {/* Search box */}
           <div className="p-2 border-b border-slate-100 sticky top-0 bg-white">
-            <div className="flex items-center gap-1.5 px-2 py-1.5 border border-slate-300 rounded focus-within:border-gov-navy focus-within:ring-1 focus-within:ring-gov-navy bg-white">
-              <Search size={12} className="text-slate-400 flex-shrink-0" />
+            <div className="flex items-center gap-1.5 px-2.5 py-2 border border-slate-300 rounded-lg focus-within:border-gov-navy focus-within:ring-1 focus-within:ring-gov-navy bg-white">
+              <Search size={13} className="text-slate-400 flex-shrink-0" />
               <input
                 ref={searchRef}
                 type="text"
@@ -210,9 +214,9 @@ export const SearchableSelect = ({
                 <button
                   type="button"
                   onClick={() => { setSearch(''); setHighlightedIdx(-1); searchRef.current?.focus(); }}
-                  className="text-slate-400 hover:text-slate-700"
+                  className="text-slate-400 hover:text-slate-700 p-0.5"
                 >
-                  <X size={11} />
+                  <X size={12} />
                 </button>
               )}
             </div>
@@ -221,11 +225,11 @@ export const SearchableSelect = ({
           {/* Options list */}
           <ul
             ref={listRef}
-            className="max-h-52 overflow-y-auto py-1"
+            className="max-h-56 overflow-y-auto py-1 touch-scroll"
             role="listbox"
           >
             {filtered.length === 0 ? (
-              <li className="px-3 py-3 text-xs text-slate-400 text-center italic">
+              <li className="px-3.5 py-3 text-xs text-slate-400 text-center italic">
                 No results found for &ldquo;{search}&rdquo;
               </li>
             ) : (
@@ -237,7 +241,7 @@ export const SearchableSelect = ({
                   aria-selected={opt.value === value}
                   onClick={() => handleSelect(opt.value)}
                   className={[
-                    'px-3 py-2 text-xs cursor-pointer transition flex items-center gap-2',
+                    'px-3.5 py-2.5 text-xs cursor-pointer transition flex items-center gap-2 min-h-[40px]',
                     opt.value === value
                       ? 'bg-gov-navy text-white font-semibold'
                       : idx === highlightedIdx

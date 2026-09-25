@@ -1,0 +1,5 @@
+## Android SDK Configuration for Legal Metrology App
+## Uncomment and adjust the path to your Android SDK installation:
+# sdk.dir=C\:\\Users\\v\\AppData\\Local\\Android\\Sdk
+## Or on Linux/macOS:
+# sdk.dir=/Users/username/Library/Android/sdk

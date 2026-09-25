@@ -15,11 +15,14 @@ import {
   FileCheck,
   Lock,
   Clock,
-  Camera,
-  QrCode
+  Copy,
+  Check,
+  QrCode,
+  ArrowLeft,
+  Info,
+  CheckCircle
 } from 'lucide-react';
 import { StatusBadge } from '../../components/common/StatusBadge';
-import { QRCameraScannerModal } from '../../components/verification/QRCameraScannerModal';
 
 export const PublicVerifyPage = () => {
   const { certificateId } = useParams();
@@ -29,7 +32,21 @@ export const PublicVerifyPage = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [scannerOpen, setScannerOpen] = useState(false);
+  const [copiedId, setCopiedId] = useState(false);
+  const [copiedHash, setCopiedHash] = useState(false);
+
+  const handleCopy = (text, type) => {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text);
+      if (type === 'id') {
+        setCopiedId(true);
+        setTimeout(() => setCopiedId(false), 2000);
+      } else {
+        setCopiedHash(true);
+        setTimeout(() => setCopiedHash(false), 2000);
+      }
+    }
+  };
 
   const fetchVerification = async (certId) => {
     if (!certId) return;
@@ -59,13 +76,6 @@ export const PublicVerifyPage = () => {
     }
   }, [certificateId]);
 
-  const handleScanSuccess = (scannedCertId) => {
-    if (scannedCertId) {
-      setInputCertId(scannedCertId);
-      navigate(`/verify/${encodeURIComponent(scannedCertId)}`);
-    }
-  };
-
   const handleSearch = (e) => {
     e.preventDefault();
     if (inputCertId.trim()) {
@@ -74,27 +84,31 @@ export const PublicVerifyPage = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-4xl mx-auto px-4 py-8 sm:py-10 space-y-6">
       {/* Top Breadcrumb & Heading */}
-      <div className="border-b border-slate-300 pb-3">
-        <div className="text-xs text-slate-500 mb-1">
-          <Link to="/" className="hover:underline text-gov-blue">Home</Link> / Public Verification
+      <div className="border-b border-slate-200 pb-4 no-print text-left">
+        <div className="text-xs text-slate-500 mb-1.5 flex items-center gap-1.5 font-medium">
+          <Link to="/" className="hover:underline text-gov-blue">Home</Link>
+          <span className="text-slate-400">/</span>
+          <span className="text-slate-700">Public Verification</span>
         </div>
-        <h1 className="text-2xl font-bold font-serif text-gov-navy flex items-center space-x-2">
-          <ShieldCheck size={26} className="text-emerald-700" />
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-gov-navy flex items-center space-x-2.5">
+          <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+            <ShieldCheck size={24} />
+          </div>
           <span>Statutory Digital Certificate Verification</span>
         </h1>
-        <p className="text-xs text-slate-600 mt-1">
-          Real-time verification against the live National Registry of the Department of Legal Metrology.
+        <p className="text-xs sm:text-sm text-slate-600 mt-1">
+          Real-time live authenticity lookup against the National Legal Metrology Registry of India.
         </p>
       </div>
 
       {/* Verification Lookup Input Box */}
-      <div className="bg-white p-4 sm:p-5 rounded border border-slate-300 shadow-xs">
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-card no-print text-left animate-fade-up">
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3 items-end">
           <div className="flex-1 w-full">
-            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
-              Enter Certificate ID or Scan QR Code
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              Enter Certificate ID / Scan QR Code
             </label>
             <div className="relative">
               <input
@@ -102,96 +116,89 @@ export const PublicVerifyPage = () => {
                 placeholder="e.g. CERT-2026-000101"
                 value={inputCertId}
                 onChange={(e) => setInputCertId(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-300 rounded font-mono focus:ring-1 focus:ring-gov-navy focus:border-gov-navy uppercase"
+                className="w-full pl-10 pr-4 py-3 text-xs sm:text-sm border border-slate-300 rounded-xl font-mono tabular-nums focus:ring-2 focus:ring-gov-navy focus:border-gov-navy uppercase transition shadow-2xs font-bold text-slate-900"
                 required
               />
-              <Search size={16} className="absolute left-3 top-2.5 sm:top-3 text-slate-400" />
+              <Search size={18} className="absolute left-3.5 top-3.5 text-slate-400" />
             </div>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setScannerOpen(true)}
-            className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white px-4 py-2 sm:py-2.5 rounded text-xs sm:text-sm font-semibold flex items-center justify-center space-x-1.5 transition shadow-xs"
-          >
-            <Camera size={16} />
-            <span>Scan with Camera</span>
-          </button>
-
           <button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto bg-gov-navy hover:bg-gov-blue text-white px-6 py-2 sm:py-2.5 rounded text-xs sm:text-sm font-semibold flex items-center justify-center space-x-2 transition disabled:opacity-50"
+            className="w-full sm:w-auto bg-gov-navy hover:bg-gov-blue text-white px-7 py-3 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center space-x-2 transition btn-tactile shadow-md disabled:opacity-50 shimmer-sweep"
           >
-            {loading ? <span>Querying Registry...</span> : <span>Verify by Code</span>}
+            {loading ? <span>Querying Registry...</span> : <span>Verify Live Status</span>}
           </button>
         </form>
 
-        {/* Camera Scanner Modal Component */}
-        <QRCameraScannerModal
-          isOpen={scannerOpen}
-          onClose={() => setScannerOpen(false)}
-          onScanSuccess={handleScanSuccess}
-        />
-
         {/* Demo Quick Lookup Buttons */}
-        <div className="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-slate-500 font-medium">Quick Demo Samples:</span>
+        <div className="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center gap-2.5 text-xs">
+          <span className="text-slate-500 font-semibold text-[11px]">Quick Evaluator Samples:</span>
           <button
+            type="button"
             onClick={() => {
               setInputCertId('CERT-2026-000101');
               navigate('/verify/CERT-2026-000101');
             }}
-            className="text-[11px] bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded hover:bg-emerald-100"
+            className="text-[11px] font-bold bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/20 px-3 py-1 rounded-full hover:bg-emerald-100 transition btn-tactile font-mono shadow-2xs hover:scale-105"
           >
-            VALID Certificate (CERT-2026-000101)
+            ✓ VALID (CERT-2026-000101)
           </button>
           <button
+            type="button"
             onClick={() => {
               setInputCertId('CERT-2025-000088');
               navigate('/verify/CERT-2025-000088');
             }}
-            className="text-[11px] bg-orange-50 text-orange-800 border border-orange-300 px-2 py-0.5 rounded hover:bg-orange-100"
+            className="text-[11px] font-bold bg-amber-50 text-amber-800 ring-1 ring-inset ring-amber-600/20 px-3 py-1 rounded-full hover:bg-amber-100 transition btn-tactile font-mono shadow-2xs hover:scale-105"
           >
-            EXPIRED Certificate (CERT-2025-000088)
+            ⚠ EXPIRED (CERT-2025-000088)
           </button>
         </div>
       </div>
 
-      {/* Loading Indicator */}
+      {/* Loading Skeleton */}
       {loading && (
-        <div className="bg-white p-8 rounded border border-slate-300 text-center space-y-2">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gov-navy border-t-transparent"></div>
-          <div className="text-xs font-semibold text-slate-700">Accessing Live Legal Metrology Database...</div>
+        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-card skeleton-shimmer space-y-4 animate-fade-in">
+          <div className="h-16 bg-slate-100 rounded-xl w-full"></div>
+          <div className="space-y-2 pt-2">
+            <div className="h-4 bg-slate-200 rounded w-1/3"></div>
+            <div className="h-4 bg-slate-100 rounded w-2/3"></div>
+            <div className="h-4 bg-slate-100 rounded w-1/2"></div>
+          </div>
+          <div className="text-center pt-3 text-xs text-slate-500 font-bold flex items-center justify-center space-x-2">
+            <div className="inline-block animate-spin rounded-full h-4 w-4 border-2 border-gov-navy border-t-transparent"></div>
+            <span>Querying National Legal Metrology Registry...</span>
+          </div>
         </div>
       )}
 
       {/* Verification Result Card */}
       {!loading && result && (
-        <div className="bg-white rounded border border-slate-300 shadow-md overflow-hidden">
+        <div id="printable-certificate" className="bg-white rounded-2xl border border-slate-200 shadow-elevated overflow-hidden text-left animate-scale-in">
           {/* Status Header Banner */}
           <div
-            className={`p-5 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${
+            className={`p-6 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${
               result.status === 'VALID'
-                ? 'bg-emerald-800 border-b-4 border-emerald-600'
+                ? 'bg-gradient-to-r from-emerald-800 to-teal-900 border-b-4 border-emerald-500'
                 : result.status === 'EXPIRED'
-                ? 'bg-amber-800 border-b-4 border-amber-600'
+                ? 'bg-gradient-to-r from-amber-800 to-amber-900 border-b-4 border-amber-500'
                 : result.status === 'REVOKED'
-                ? 'bg-red-800 border-b-4 border-red-600'
-                : 'bg-slate-800 border-b-4 border-slate-600'
+                ? 'bg-gradient-to-r from-red-800 to-red-900 border-b-4 border-red-500'
+                : 'bg-gradient-to-r from-slate-800 to-slate-900 border-b-4 border-slate-600'
             }`}
           >
-            <div className="flex items-center space-x-3">
-              {result.status === 'VALID' && <CheckCircle2 size={36} className="text-emerald-300" />}
-              {result.status === 'EXPIRED' && <AlertTriangle size={36} className="text-amber-300" />}
-              {result.status === 'REVOKED' && <XCircle size={36} className="text-red-300" />}
-              {result.status === 'INVALID' && <XCircle size={36} className="text-slate-400" />}
+            <div className="flex items-center space-x-3.5">
+              {result.status === 'VALID' && <CheckCircle2 size={40} className="text-emerald-300 flex-shrink-0 animate-pulse-subtle" />}
+              {result.status === 'EXPIRED' && <AlertTriangle size={40} className="text-amber-300 flex-shrink-0 animate-pulse-subtle" />}
+              {result.status === 'REVOKED' && <XCircle size={40} className="text-red-300 flex-shrink-0" />}
+              {result.status === 'INVALID' && <XCircle size={40} className="text-slate-400 flex-shrink-0" />}
 
               <div>
-                <div className="text-[11px] uppercase tracking-wider text-slate-200">
-                  Verification Status
+                <div className="text-[11px] uppercase tracking-widest text-slate-200 font-bold">
+                  Official Verification Status
                 </div>
-                <div className="text-xl sm:text-2xl font-bold tracking-wide">
+                <div className="text-xl sm:text-2xl font-extrabold tracking-wide">
                   {result.status === 'VALID' && '✓ VALID & VERIFIED CERTIFICATE'}
                   {result.status === 'EXPIRED' && '⚠ CERTIFICATE EXPIRED'}
                   {result.status === 'REVOKED' && '✕ CERTIFICATE REVOKED'}
@@ -200,15 +207,18 @@ export const PublicVerifyPage = () => {
               </div>
             </div>
 
-            <div className="text-right text-xs">
-              <div className="text-slate-200">Live Timestamp:</div>
-              <div className="font-mono">{new Date().toLocaleString()}</div>
+            <div className="text-left sm:text-right text-xs bg-white/10 px-3.5 py-2 rounded-xl backdrop-blur-md">
+              <div className="text-slate-300 text-[10px] uppercase font-bold tracking-wider flex items-center gap-1.5 sm:justify-end">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping inline-block"></span>
+                <span>Live Query Timestamp</span>
+              </div>
+              <div className="font-mono tabular-nums font-semibold text-white">{new Date().toLocaleString()}</div>
             </div>
           </div>
 
           {/* Revocation Alert Banner if Revoked */}
           {result.status === 'REVOKED' && (
-            <div className="bg-red-50 border-b border-red-200 p-4 text-xs text-red-900 flex items-start space-x-2">
+            <div className="bg-red-50 border-b border-red-200 p-4 text-xs text-red-900 flex items-start space-x-3">
               <AlertTriangle size={18} className="text-red-700 flex-shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold">Administrative Revocation Notice: </span>
@@ -221,7 +231,7 @@ export const PublicVerifyPage = () => {
 
           {/* Expired Notice if Expired */}
           {result.status === 'EXPIRED' && (
-            <div className="bg-amber-50 border-b border-amber-200 p-4 text-xs text-amber-900 flex items-start space-x-2">
+            <div className="bg-amber-50 border-b border-amber-200 p-4 text-xs text-amber-900 flex items-start space-x-3">
               <AlertTriangle size={18} className="text-amber-700 flex-shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold">Notice: </span>
@@ -233,63 +243,113 @@ export const PublicVerifyPage = () => {
 
           {/* Detailed Certificate Record */}
           {result.verified && result.certificate && (
-            <div className="p-6 space-y-6">
+            <div className="p-6 sm:p-8 space-y-6 bg-white relative">
+              {/* Sovereign Holographic Security Strip */}
+              <div className="hologram-prism p-3.5 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-2 text-slate-900 shadow-sm border border-amber-500/30">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-6 h-6 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-xs shadow-xs">
+                    ★
+                  </div>
+                  <div className="text-xs font-bold uppercase tracking-wider text-slate-900">
+                    Statutory Holographic Security Strip • Legal Metrology Act, 2009
+                  </div>
+                </div>
+                <div className="text-[11px] font-mono font-bold text-slate-700">
+                  SECURITY KEY: {result.certificate.id.replace('CERT-', 'SEC-')}-SECURE
+                </div>
+              </div>
+
               {/* Official Seal and Certificate Header */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 gap-4">
-                <div className="flex items-center space-x-3">
-                  <img src="/emblem.svg" alt="Department Seal" className="w-14 h-14" />
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-5 gap-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 p-1 flex items-center justify-center flex-shrink-0 shadow-subtle">
+                    <img src="/emblem.svg" alt="Department Seal" className="w-full h-full object-contain" />
+                  </div>
                   <div>
-                    <div className="text-xs uppercase font-bold text-slate-500">Department of Legal Metrology</div>
-                    <div className="text-base font-bold text-gov-navy font-serif">Certificate of Verification</div>
-                    <div className="text-xs text-slate-600">Issued under Section 24 of Legal Metrology Act, 2009</div>
+                    <div className="text-[11px] uppercase font-bold text-slate-500 tracking-wider flex items-center gap-1.5">
+                      <span>Government of India</span>
+                      <span>•</span>
+                      <span className="text-amber-800 font-devanagari font-bold">भारत सरकार</span>
+                    </div>
+                    <div className="text-xl font-extrabold text-gov-navy tracking-tight">
+                      Statutory Certificate of Verification
+                    </div>
+                    <div className="text-xs text-slate-600 mt-0.5">
+                      Issued under statutory authority of Section 24, Legal Metrology Act, 2009
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-50 border border-slate-300 p-2.5 rounded text-left sm:text-right">
-                  <div className="text-[10px] uppercase text-slate-500 font-bold">Certificate Number</div>
-                  <div className="font-mono font-bold text-gov-navy text-sm">{result.certificate.id}</div>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 w-full sm:w-auto justify-end no-print">
+                  <button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="btn-tactile bg-slate-50 hover:bg-slate-100 text-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition border border-slate-300 shadow-2xs w-full sm:w-auto min-h-[42px]"
+                  >
+                    <Printer size={15} className="text-slate-600" />
+                    <span>Print Official Certificate</span>
+                  </button>
+
+                  <div className="bg-slate-50 border border-slate-300 px-4 py-2 rounded-xl text-left sm:text-right flex items-center space-x-2.5 shadow-2xs">
+                    <div>
+                      <div className="text-[9px] uppercase text-slate-500 font-bold tracking-wider">Certificate ID</div>
+                      <div className="font-mono font-bold text-gov-navy text-xs sm:text-sm">{result.certificate.id}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(result.certificate.id, 'id')}
+                      className="btn-tactile p-1 text-slate-400 hover:text-slate-800 rounded transition"
+                      title="Copy Certificate ID"
+                    >
+                      {copiedId ? <Check size={15} className="text-emerald-600" /> : <Copy size={15} />}
+                    </button>
+                  </div>
                 </div>
               </div>
 
               {/* Data Grid: Instrument & Business Details */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs sm:text-sm">
                 {/* Instrument Information */}
-                <div className="space-y-3 bg-slate-50 p-4 rounded border border-slate-200">
-                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-[11px] border-b pb-1">
-                    Instrument Details
+                <div className="space-y-3.5 bg-slate-50/80 p-6 rounded-3xl border border-slate-200/90 shadow-subtle">
+                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-xs border-b border-slate-200 pb-2 flex items-center justify-between">
+                    <span>Instrument Dossier</span>
+                    <Scale size={15} className="text-slate-500" />
                   </h4>
-                  <div className="grid grid-cols-3 gap-1">
-                    <span className="text-slate-500">Instrument Type:</span>
-                    <span className="col-span-2 font-semibold text-slate-800">
+
+                  <div className="grid grid-cols-3 gap-y-2.5 gap-x-2 text-slate-700 text-xs">
+                    <span className="text-slate-500 font-medium">Instrument Type:</span>
+                    <span className="col-span-2 font-bold text-slate-900">
                       {result.certificate.instrument?.type}
                     </span>
 
-                    <span className="text-slate-500">Manufacturer:</span>
-                    <span className="col-span-2 font-medium text-slate-800">
+                    <span className="text-slate-500 font-medium">Manufacturer:</span>
+                    <span className="col-span-2 text-slate-800 font-medium">
                       {result.certificate.instrument?.manufacturer}
                     </span>
 
-                    <span className="text-slate-500">Model Number:</span>
-                    <span className="col-span-2 font-mono text-slate-800">
+                    <span className="text-slate-500 font-medium">Model Number:</span>
+                    <span className="col-span-2 font-mono text-slate-800 font-bold">
                       {result.certificate.instrument?.model_number}
                     </span>
 
-                    <span className="text-slate-500">Serial Number:</span>
+                    <span className="text-slate-500 font-medium">Serial Number:</span>
                     <span className="col-span-2 font-mono font-bold text-gov-navy">
                       {result.certificate.instrument?.serial_number}
                     </span>
 
-                    <span className="text-slate-500">Capacity:</span>
-                    <span className="col-span-2 font-medium text-slate-800">
+                    <span className="text-slate-500 font-medium">Capacity / Range:</span>
+                    <span className="col-span-2 font-mono tabular-nums text-slate-800 font-bold">
                       {result.certificate.instrument?.capacity}
                     </span>
 
-                    <span className="text-slate-500">Accuracy Class:</span>
-                    <span className="col-span-2 font-semibold text-emerald-800">
-                      {result.certificate.instrument?.accuracy_class}
+                    <span className="text-slate-500 font-medium">Accuracy Class:</span>
+                    <span className="col-span-2">
+                      <span className="inline-block bg-emerald-50 text-emerald-800 ring-1 ring-inset ring-emerald-600/30 px-2.5 py-0.5 rounded-full font-bold text-[10px]">
+                        Class {result.certificate.instrument?.accuracy_class || 'III'}
+                      </span>
                     </span>
 
-                    <span className="text-slate-500">Location:</span>
+                    <span className="text-slate-500 font-medium">Premises Location:</span>
                     <span className="col-span-2 text-slate-800">
                       {result.certificate.instrument?.location}
                     </span>
@@ -297,38 +357,39 @@ export const PublicVerifyPage = () => {
                 </div>
 
                 {/* Ownership & Authority Information */}
-                <div className="space-y-3 bg-slate-50 p-4 rounded border border-slate-200">
-                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-[11px] border-b pb-1">
-                    Verification Authority & Validity
+                <div className="space-y-3.5 bg-slate-50/80 p-6 rounded-3xl border border-slate-200/90 shadow-subtle">
+                  <h4 className="font-bold text-gov-navy uppercase tracking-wider text-xs border-b border-slate-200 pb-2 flex items-center justify-between">
+                    <span>Verification Authority &amp; Validity</span>
+                    <Building2 size={15} className="text-slate-500" />
                   </h4>
-                  <div className="grid grid-cols-3 gap-1">
-                    <span className="text-slate-500">Business Name:</span>
-                    <span className="col-span-2 font-semibold text-slate-800">
+                  <div className="grid grid-cols-3 gap-y-2.5 gap-x-2 text-slate-700 text-xs">
+                    <span className="text-slate-500 font-medium">Business Owner:</span>
+                    <span className="col-span-2 font-bold text-slate-900">
                       {result.certificate.owner?.business_name}
                     </span>
 
-                    <span className="text-slate-500">Business Address:</span>
-                    <span className="col-span-2 text-slate-800">
+                    <span className="text-slate-500 font-medium">Premises Address:</span>
+                    <span className="col-span-2 text-slate-800 truncate">
                       {result.certificate.owner?.location || 'Registered Commercial Premises'}
                     </span>
 
-                    <span className="text-slate-500">Verifying Agency:</span>
+                    <span className="text-slate-500 font-medium">Verifying Agency:</span>
                     <span className="col-span-2 font-medium text-slate-800">
                       {result.certificate.verifying_authority}
                     </span>
 
-                    <span className="text-slate-500">Inspector / Verifier:</span>
-                    <span className="col-span-2 font-semibold text-gov-navy">
+                    <span className="text-slate-500 font-medium">Inspector / LMO:</span>
+                    <span className="col-span-2 font-bold text-gov-navy">
                       {result.certificate.verifier_name}
                     </span>
 
-                    <span className="text-slate-500">Verification Date:</span>
-                    <span className="col-span-2 font-bold text-slate-800">
+                    <span className="text-slate-500 font-medium">Stamping Date:</span>
+                    <span className="col-span-2 font-mono tabular-nums font-bold text-slate-800">
                       {result.certificate.verification_date}
                     </span>
 
-                    <span className="text-slate-500">Valid Until:</span>
-                    <span className="col-span-2 font-bold text-amber-900">
+                    <span className="text-slate-500 font-medium">Valid Until:</span>
+                    <span className="col-span-2 font-mono tabular-nums font-extrabold text-emerald-800 text-sm">
                       {result.certificate.valid_until}
                     </span>
                   </div>
@@ -336,12 +397,31 @@ export const PublicVerifyPage = () => {
               </div>
 
               {/* Digital Signature & Integrity Block */}
-              <div className="bg-slate-100 p-3.5 rounded border border-slate-200 text-[11px] space-y-1">
-                <div className="flex items-center space-x-1.5 font-bold text-slate-700">
-                  <Lock size={13} className="text-emerald-700" />
-                  <span>Cryptographic Digital Signature Digest (Live DB Lookup Verified)</span>
+              <div className="bg-slate-50/90 p-5 rounded-2xl border border-slate-200 text-xs space-y-2.5 shadow-subtle">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center space-x-2 font-bold text-slate-900">
+                    <Lock size={15} className="text-emerald-700" />
+                    <span>Cryptographic Digital Signature Digest (Live Ledger Verified)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(result.certificate.digital_signature_hash, 'hash')}
+                    className="btn-tactile text-xs text-gov-navy hover:text-gov-blue font-bold flex items-center space-x-1"
+                  >
+                    {copiedHash ? (
+                      <>
+                        <Check size={14} className="text-emerald-600" />
+                        <span className="text-emerald-600">Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} />
+                        <span>Copy SHA-256 Digest</span>
+                      </>
+                    )}
+                  </button>
                 </div>
-                <div className="font-mono text-[10px] text-slate-600 break-all bg-white p-2 rounded border border-slate-200">
+                <div className="font-mono text-[11px] text-slate-700 break-all bg-white p-3.5 rounded-xl border border-slate-200 shadow-2xs leading-relaxed font-semibold">
                   {result.certificate.digital_signature_hash}
                 </div>
               </div>
@@ -350,11 +430,13 @@ export const PublicVerifyPage = () => {
 
           {/* Invalid Record Card */}
           {!result.verified && (
-            <div className="p-8 text-center space-y-3">
-              <XCircle size={44} className="text-red-600 mx-auto" />
-              <h3 className="font-bold text-slate-800 text-sm">Certificate ID Not Recognized</h3>
-              <p className="text-xs text-slate-600 max-w-md mx-auto">
-                No certificate with ID <strong>"{result.certificate_id}"</strong> was found in the official Department of Legal Metrology registry. Please check the number stamped on the certificate.
+            <div className="p-10 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto">
+                <XCircle size={36} />
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-lg">Certificate ID Not Recognized</h3>
+              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                No certificate with ID <strong className="font-mono text-slate-900">"{result.certificate_id}"</strong> was found in the official Department of Legal Metrology registry. Please verify the number printed on the physical stamp or QR code.
               </p>
             </div>
           )}
