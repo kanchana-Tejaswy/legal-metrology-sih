@@ -36,9 +36,12 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b %ERRORLEVEL%
 )
 
+if not exist "%~dp0apk" mkdir "%~dp0apk"
+copy /y "%~dp0frontend\android\app\build\outputs\apk\debug\app-debug.apk" "%~dp0apk\LegalMetrology-debug.apk" >nul
+
 echo.
 echo ================================================================
-echo [SUCCESS] Debug APK generated successfully at:
-echo frontend\android\app\build\outputs\apk\debug\app-debug.apk
+echo [SUCCESS] APK copied to the dedicated apk folder at:
+echo %~dp0apk\LegalMetrology-debug.apk
 echo ================================================================
 pause
