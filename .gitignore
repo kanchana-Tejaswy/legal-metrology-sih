@@ -23,6 +23,7 @@ Thumbs.db
 # Dev tools
 *.bat
 !build-apk.bat
+!package-deliverables.bat
 *.cmd
 *.ps1
 test_write.txt
